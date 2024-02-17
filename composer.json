@@ -1,0 +1,21 @@
+{
+  "name": "mraugir/thumbnail",
+  "type": "library",
+  "description": "Eases the generation of thumbnail",
+  "keywords": ["thumbnail","image","asset"],
+  "authors": [
+    {
+      "name": "Aurélien Girard"
+    }
+  ],
+  "require": {},
+  "require-dev": {},
+  "autoload": {
+    "psr-4": {
+      "MrAuGir\\Thumbnail\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  }
+}
