@@ -20,7 +20,8 @@ interface Converter
     public function setConfiguration(Configuration $configuration) : self;
 
     /**
+     * @param Image $image
      * @return string
      */
-    public function commandToExecute() : string;
+    public function commandToExecute(Image $image) : string;
 }

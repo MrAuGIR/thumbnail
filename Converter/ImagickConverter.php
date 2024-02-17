@@ -39,8 +39,8 @@ class ImagickConverter implements Converter
     /**
      * @inheritDoc
      */
-    public function commandToExecute(): string
+    public function commandToExecute(Image $image): string
     {
-        // TODO: Implement commandToExecute() method.
+        return $this->binaryName." ".$this->configuration->getOtionsChain($image);
     }
 }

@@ -4,6 +4,10 @@ namespace MrAuGir\Thumbnail\Model;
 
 class Option
 {
+    /**
+     * @param string $name
+     * @param string|null $value
+     */
     public function __construct(protected string  $name, protected ?string $value = null)
     {
     }
@@ -50,6 +54,4 @@ class Option
         $this->value = $value;
         return $this;
     }
-
-
 }

@@ -3,7 +3,9 @@
 namespace MrAuGir\Thumbnail\Tests;
 
 use MrAuGir\Thumbnail\Converter\ImagickConverter;
+use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Model\Image;
+use MrAuGir\Thumbnail\Model\Option;
 use PHPUnit\Framework\TestCase;
 
 class ConvertTest extends TestCase
@@ -21,8 +23,14 @@ class ConvertTest extends TestCase
         $this->assertFalse($converter->support($imageCad));
         $this->assertTrue($converter->support($imageJpeg));
 
-        $command = "convert ".$path." -resize 125x25 ".$pathOutput;
+        $option = new Option("-resize","125x25");
+        $configuration = new Configuration([$option]);
+        $configuration->setOutputPath(__DIR__."/images/thumbnail/");
 
-        $this->assertEquals($command,$converter->commandToExecute());
+        $converter->setConfiguration($configuration);
+
+        $command = "convert ".escapeshellarg($path)." -resize 125x25 ".escapeshellarg($pathOutput);
+
+        $this->assertEquals($command,$converter->commandToExecute($imageJpeg));
     }
 }
