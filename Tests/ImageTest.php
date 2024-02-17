@@ -9,10 +9,13 @@ class ImageTest extends TestCase
 {
     public function testCreateImageFromPath() : void
     {
-        $path = "images/test.jpg";
+        $path = __DIR__ . "/images/test.jpg";
 
         $image = new Image($path);
 
         $this->assertInstanceOf(Image::class,$image);
+        $this->assertEquals("image/jpeg",$image->getTypeMime());
+        $this->assertEquals("jpg",$image->getExtension());
+        $this->assertEquals("test",$image->getFileName());
     }
 }
