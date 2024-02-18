@@ -26,7 +26,7 @@ class Configuration
         return  sprintf("%s %s %s",
             escapeshellarg($image->getPath()),
             trim($return),
-            $this->getOutputFullPath($image)
+            escapeshellarg($this->getOutputFullPath($image))
         );
     }
 
@@ -53,7 +53,6 @@ class Configuration
      * @return string
      */
     public function getOutputFullPath(Image $image) : string {
-        $path = $this->outputPath.self::PREFIX.$image->getFileName().".".self::EXT;
-        return escapeshellarg($path);
+        return $this->outputPath.self::PREFIX.$image->getFileName().".".self::EXT;
     }
 }

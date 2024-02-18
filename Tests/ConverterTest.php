@@ -26,7 +26,7 @@ class ConverterTest extends TestCase
 
         $converter->setConfiguration($configuration);
 
-        $command = "convert ".escapeshellarg($imageJpeg->getPath())." -resize 125x25 ".$configuration->getOutputFullPath($imageJpeg);
+        $command = "convert ".escapeshellarg($imageJpeg->getPath())." -resize 125x25 ".escapeshellarg($configuration->getOutputFullPath($imageJpeg));
 
         $this->assertEquals($command,$converter->commandToExecute($imageJpeg));
     }
