@@ -42,8 +42,8 @@ class EngineTest extends TestCase
         $image = ImageFaker::getImage("test.jpg");
         $converter = ImageFaker::getConverter();
 
-        $this->assertEquals(0,ExitCode::SUCCESS);
-        $this->assertEquals(1,ExitCode::FAILURE);
+        $this->assertEquals(0,ExitCode::SUCCESS->value);
+        $this->assertEquals(1,ExitCode::FAILURE->value);
 
         $engine->processConvertion($image, $converter);
     }
