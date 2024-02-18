@@ -4,14 +4,17 @@ namespace MrAuGir\Thumbnail\Model;
 
 class Configuration
 {
-    protected const PREFIX = "thumb_";
+    protected string $prefix;
 
-    protected const EXT = "jpg";
+    protected string $ext;
+
     /**
      * @param Option[] $options
      */
     public function __construct(protected array $options = [], protected ?string $outputPath = null)
     {
+        $this->prefix = "thumb_";
+        $this->ext = "jpg";
     }
 
     /**
@@ -53,6 +56,24 @@ class Configuration
      * @return string
      */
     public function getOutputFullPath(Image $image) : string {
-        return $this->outputPath.self::PREFIX.$image->getFileName().".".self::EXT;
+        return $this->outputPath.$this->prefix.$image->getFileName().".".$this->ext;
+    }
+
+    /**
+     * @param string $prefix
+     * @return $this
+     */
+    public function setPrefix(string $prefix) : self {
+        $this->prefix = $prefix;
+        return $this;
+    }
+
+    /**
+     * @param string $extension
+     * @return $this
+     */
+    public function setExtension(string $extension) : self {
+        $this->ext = $extension;
+        return $this;
     }
 }

@@ -4,7 +4,6 @@ namespace MrAuGir\Thumbnail;
 
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Model\Image;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
 class Engine
@@ -18,9 +17,9 @@ class Engine
     public function processConvertion(Image $image, Converter $converter) : void {
 
         $process = Process::fromShellCommandline($converter->commandToExecute($image));
-        $result = $process->run();
+        $process->run();
 
-        if ($result == Command::FAILURE) {
+        if (!$process->isSuccessful()) {
             throw new ImageConvertException("Exception while convert image ".$image->getPath());
         }
     }

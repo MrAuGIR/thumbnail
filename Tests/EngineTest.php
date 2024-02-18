@@ -5,6 +5,7 @@ namespace MrAuGir\Thumbnail\Tests;
 use MrAuGir\Thumbnail\Converter\ImagickConverter;
 use MrAuGir\Thumbnail\Engine;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
+use MrAuGir\Thumbnail\ExitCode;
 use MrAuGir\Thumbnail\Tests\objects\ImageFaker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
@@ -40,6 +41,9 @@ class EngineTest extends TestCase
         $engine = new Engine();
         $image = ImageFaker::getImage("test.jpg");
         $converter = ImageFaker::getConverter();
+
+        $this->assertEquals(0,ExitCode::SUCCESS);
+        $this->assertEquals(1,ExitCode::FAILURE);
 
         $engine->processConvertion($image, $converter);
     }
