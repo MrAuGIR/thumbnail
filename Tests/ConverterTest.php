@@ -4,19 +4,16 @@ namespace MrAuGir\Thumbnail\Tests;
 
 use MrAuGir\Thumbnail\Converter\ImagickConverter;
 use MrAuGir\Thumbnail\Model\Configuration;
-use MrAuGir\Thumbnail\Model\Image;
 use MrAuGir\Thumbnail\Model\Option;
+use MrAuGir\Thumbnail\Tests\objects\ImageFaker;
 use PHPUnit\Framework\TestCase;
 
-class ConvertTest extends TestCase
+class ConverterTest extends TestCase
 {
     public function testInitConverter() : void {
 
-        $path = __DIR__ . "/images/test.jpg";
-        $pathOutput = __DIR__."/images/thumbnail/thumb_test.jpg";
-        $pathCad = __DIR__ . "/images/test.cad";
-        $imageJpeg = new Image($path);
-        $imageCad  = new Image($pathCad);
+        $imageJpeg = ImageFaker::getImage("test.jpg");
+        $imageCad  = ImageFaker::getImage("test.cad");
 
         $converter = new ImagickConverter();
 
@@ -29,7 +26,7 @@ class ConvertTest extends TestCase
 
         $converter->setConfiguration($configuration);
 
-        $command = "convert ".escapeshellarg($path)." -resize 125x25 ".escapeshellarg($pathOutput);
+        $command = "convert ".escapeshellarg($imageJpeg->getPath())." -resize 125x25 ".$configuration->getOutputFullPath($imageJpeg);
 
         $this->assertEquals($command,$converter->commandToExecute($imageJpeg));
     }

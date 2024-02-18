@@ -5,14 +5,14 @@ namespace MrAuGir\Thumbnail\Tests;
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Model\Image;
 use MrAuGir\Thumbnail\Model\Option;
+use MrAuGir\Thumbnail\Tests\objects\ImageFaker;
 use PHPUnit\Framework\TestCase;
 
 class ConfigurationTest extends TestCase
 {
     public function testCreateConfiguration() : void {
-        $pathOutput = __DIR__."/images/thumbnail/thumb_test.jpg";
-        $path = __DIR__ . "/images/test.jpg";
-        $imageJpeg = new Image($path);
+
+        $imageJpeg = ImageFaker::getImage("test.jpg");
 
         $configuration = new Configuration();
         $this->assertInstanceOf(Configuration::class, $configuration);
@@ -32,7 +32,9 @@ class ConfigurationTest extends TestCase
             ->addOption($optionWithoutValue)
             ->setOutputPath(__DIR__."/images/thumbnail/");
 
-        $chain = trim(escapeshellarg($imageJpeg->getPath())." -resize 125x25 -quality ".escapeshellarg($pathOutput));
+        $this->assertEquals(escapeshellarg(__DIR__."/images/thumbnail/thumb_test.jpg"),$configuration->getOutputFullPath($imageJpeg));
+
+        $chain = trim(escapeshellarg($imageJpeg->getPath())." -resize 125x25 -quality ".$configuration->getOutputFullPath($imageJpeg));
 
         $this->assertEquals($chain, $configuration->getOtionsChain($imageJpeg));
     }
