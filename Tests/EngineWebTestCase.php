@@ -2,8 +2,6 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
-use MrAuGir\Thumbnail\Model\Image;
-use MrAuGir\Thumbnail\Tests\objects\ImageFaker;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
