@@ -2,7 +2,9 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
+use MrAuGir\Thumbnail\Converter;
 use MrAuGir\Thumbnail\Converter\ImagickConverter;
+use MrAuGir\Thumbnail\Factory\ConverterFactory;
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Model\Option;
 use MrAuGir\Thumbnail\Tests\objects\ImageFaker;
@@ -29,5 +31,19 @@ class ConverterTest extends TestCase
         $command = "convert ".escapeshellarg($imageJpeg->getPath())." -resize 125x25 ".escapeshellarg($configuration->getOutputFullPath($imageJpeg));
 
         $this->assertEquals($command,$converter->commandToExecute($imageJpeg));
+    }
+
+    public function testUseFactory() : void {
+
+        $configuration = ImageFaker::getConfiguration();
+        $image = ImageFaker::getImage("test.jpg");
+
+        $converter = ConverterFactory::create('convert',$configuration);
+
+        $command = "convert ".escapeshellarg($image->getPath())." -resize 125x25 ".escapeshellarg($configuration->getOutputFullPath($image));
+
+        $this->assertInstanceOf(Converter::class,$converter);
+        $this->assertTrue($converter->support($image));
+        $this->assertEquals($command,$converter->commandToExecute($image));
     }
 }

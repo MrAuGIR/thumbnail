@@ -5,7 +5,7 @@ namespace MrAuGir\Thumbnail\Converter;
 use MrAuGir\Thumbnail\Converter;
 use MrAuGir\Thumbnail\Model\Image;
 
-class ImagickConverter implements Converter
+class BinaryConverter implements Converter
 {
     use TraitConfiguration;
 
@@ -13,9 +13,9 @@ class ImagickConverter implements Converter
 
     private static array $allowedMimeType = [
         'image/gif',
-		'image/jpeg',
-		'image/jpg',
-		'image/png'
+        'image/jpeg',
+        'image/jpg',
+        'image/png'
     ];
 
     /**
@@ -23,7 +23,7 @@ class ImagickConverter implements Converter
      */
     public function support(Image $image): bool
     {
-        return in_array($image->getTypeMime(),static::$allowedMimeType);
+        return in_array($image->getTypeMime(),self::$allowedMimeType);
     }
 
     /**
@@ -31,6 +31,9 @@ class ImagickConverter implements Converter
      */
     public function commandToExecute(Image $image): string
     {
-        return $this->binaryName." ".$this->configuration->getOtionsChain($image);
+        return sprintf("%s %s",
+            $this->binaryName,
+            $this->configuration->getOtionsChain($image)
+        );
     }
 }
