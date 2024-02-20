@@ -16,9 +16,16 @@ class ThumbnailExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container) : void
     {
-        $configuration = new Configuration();
-
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+
+        $this->createConvertersService($configs[0]['converter']);
+    }
+
+    private function createConvertersService(array $converters)
+    {
+        foreach ($converters as $id => $conf) {
+
+        }
     }
 }
