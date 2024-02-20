@@ -2,7 +2,6 @@
 
 namespace MrAuGir\Thumbnail\Converter;
 
-use MrAuGir\Thumbnail\Converter;
 use MrAuGir\Thumbnail\Model\Image;
 
 class BinaryConverter implements Converter

@@ -2,6 +2,7 @@
 
 namespace MrAuGir\Thumbnail;
 
+use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Logger\DummyLogger;
 use MrAuGir\Thumbnail\Model\Image;

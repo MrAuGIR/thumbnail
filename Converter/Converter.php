@@ -1,6 +1,6 @@
 <?php
 
-namespace MrAuGir\Thumbnail;
+namespace MrAuGir\Thumbnail\Converter;
 
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Model\Image;

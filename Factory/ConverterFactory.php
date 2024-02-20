@@ -2,7 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Factory;
 
-use MrAuGir\Thumbnail\Converter;
+use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Model\Configuration;
 
 class ConverterFactory
