@@ -2,6 +2,7 @@
 
 namespace MrAuGir\Thumbnail\DependencyInjection;
 
+use MrAuGir\Thumbnail\DependencyInjection\Factory\ConverterDefinitionFactory;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -16,16 +17,25 @@ class ThumbnailExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container) : void
     {
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-        $this->createConvertersService($configs[0]['converter']);
+        $this->createConvertersService($config['converters'], $container);
     }
 
-    private function createConvertersService(array $converters)
+    /**
+     * @param array $converters
+     * @param ContainerBuilder $container
+     * @return void
+     */
+    private function createConvertersService(array $converters, ContainerBuilder $container) : void
     {
+        $converterFactory = new ConverterDefinitionFactory();
         foreach ($converters as $id => $conf) {
-
+            $definition = $converterFactory->createDefinition($id,$conf);
         }
     }
 }

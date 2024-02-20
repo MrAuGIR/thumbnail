@@ -22,6 +22,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('converters')
                 ->useAttributeAsKey('name')
                 ->arrayPrototype()
+                    ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('path')->isRequired()->end()
                         ->scalarNode('binary')->isRequired()->end()
