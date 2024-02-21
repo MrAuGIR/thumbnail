@@ -2,7 +2,6 @@
 
 namespace MrAuGir\Thumbnail\Converter;
 
-use MrAuGir\Thumbnail\Converter;
 use MrAuGir\Thumbnail\Model\Image;
 
 class BinaryConverter implements Converter
@@ -17,6 +16,14 @@ class BinaryConverter implements Converter
         'image/jpg',
         'image/png'
     ];
+
+    /**
+     * @param string $binaryName
+     */
+    public function __construct(string $binaryName = 'convert')
+    {
+        $this->binaryName = $binaryName;
+    }
 
     /**
      * @inheritDoc

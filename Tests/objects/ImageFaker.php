@@ -2,7 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Tests\objects;
 
-use MrAuGir\Thumbnail\Converter;
+use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Converter\ImagickConverter;
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Model\Image;
