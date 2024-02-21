@@ -18,6 +18,14 @@ class BinaryConverter implements Converter
     ];
 
     /**
+     * @param string $binaryName
+     */
+    public function __construct(string $binaryName = 'convert')
+    {
+        $this->binaryName = $binaryName;
+    }
+
+    /**
      * @inheritDoc
      */
     public function support(Image $image): bool

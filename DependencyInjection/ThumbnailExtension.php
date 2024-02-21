@@ -35,7 +35,10 @@ class ThumbnailExtension extends Extension
     {
         $converterFactory = new ConverterDefinitionFactory();
         foreach ($converters as $id => $conf) {
+            // create a converter definition
             $definition = $converterFactory->createDefinition($id,$conf);
+            $alias =  sprintf('thumbnail.converter.%s', $id);
+            $container->setDefinition($alias,$definition);
         }
     }
 }
