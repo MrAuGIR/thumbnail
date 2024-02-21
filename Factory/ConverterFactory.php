@@ -2,6 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Factory;
 
+use MrAuGir\Thumbnail\Converter\BinaryConverter;
 use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Model\Configuration;
 
@@ -13,10 +14,9 @@ class ConverterFactory
      * @return Converter
      */
     public static function create(string $binaryName,Configuration $configuration) : Converter {
-        $converter = new Converter\BinaryConverter();
+        $converter = new BinaryConverter();
         $converter->binaryName = $binaryName;
         $converter->setConfiguration($configuration);
-
 
         return $converter;
     }
