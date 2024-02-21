@@ -46,8 +46,7 @@ class ConverterDefinitionFactory
      * @return void
      */
     private function configureOptions(OptionsResolver $resolver) : void {
-        $resolver->setRequired(['path', 'binary', 'configuration']);
-        $resolver->setAllowedTypes('path', 'string');
+        $resolver->setRequired(['binary', 'configuration']);
         $resolver->setAllowedTypes('binary', 'string');
         $resolver->setAllowedTypes('configuration', 'array');
     }

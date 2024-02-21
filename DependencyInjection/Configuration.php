@@ -24,7 +24,6 @@ class Configuration implements ConfigurationInterface
                 ->arrayPrototype()
                     ->performNoDeepMerging()
                     ->children()
-                        ->scalarNode('path')->isRequired()->end()
                         ->scalarNode('binary')->isRequired()->end()
                         ->arrayNode('configuration')
                             ->children()

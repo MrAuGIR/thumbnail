@@ -2,6 +2,7 @@
 
 namespace MrAuGir\Thumbnail\DependencyInjection;
 
+use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\DependencyInjection\Factory\ConverterDefinitionFactory;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -38,7 +39,9 @@ class ThumbnailExtension extends Extension
             // create a converter definition
             $definition = $converterFactory->createDefinition($id,$conf);
             $alias =  sprintf('thumbnail.converter.%s', $id);
+            $container->setDefinition($id,$definition);
             $container->setDefinition($alias,$definition);
+            $container->registerAliasForArgument($id, Converter::class, $id)->setPublic(false);
         }
     }
 }
