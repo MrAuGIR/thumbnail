@@ -1,0 +1,10 @@
+thumbnail:
+    converters:
+        convert_vignette:
+            binary: "convert"
+            configuration:
+                prefix: "thumb_240x24_"
+                ext: "jpeg"
+                options:
+                    - { name: "-resize", value: "240x24"}
+                outputPath: "public/assets/thumbnail/"
