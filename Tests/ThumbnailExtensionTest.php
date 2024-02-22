@@ -3,7 +3,7 @@
 namespace MrAuGir\Thumbnail\Tests;
 
 use MrAuGir\Thumbnail\Converter\Converter;
-use MrAuGir\Thumbnail\Converter\ImagickConverter;
+use MrAuGir\Thumbnail\Converter\BinaryConverter;
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Tests\Kernel\ThumbnailTestKernel;
 use PHPUnit\Framework\MockObject\Exception;
@@ -51,9 +51,9 @@ class ThumbnailExtensionTest extends TestCase
      */
     private function getClientMocks(): array
     {
-        $convert = $this->createMock(ImagickConverter::class);
+        $convert = $this->createMock(BinaryConverter::class);
         $convert->setConfiguration($this->createMock(Configuration::class));
-        $convert->method('setConfiguration')->willReturn($this->createMock(ImagickConverter::class));
+        $convert->method('setConfiguration')->willReturn($this->createMock(BinaryConverter::class));
 
         return [
             'convert_vignette' => $convert,

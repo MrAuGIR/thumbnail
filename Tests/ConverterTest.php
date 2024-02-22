@@ -2,8 +2,8 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
+use MrAuGir\Thumbnail\Converter\BinaryConverter;
 use MrAuGir\Thumbnail\Converter\Converter;
-use MrAuGir\Thumbnail\Converter\ImagickConverter;
 use MrAuGir\Thumbnail\Factory\ConverterFactory;
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Model\Option;
@@ -17,7 +17,7 @@ class ConverterTest extends TestCase
         $imageJpeg = ImageFaker::getImage("test.jpg");
         $imageCad  = ImageFaker::getImage("test.cad");
 
-        $converter = new ImagickConverter();
+        $converter = new BinaryConverter("convert");
 
         $this->assertFalse($converter->support($imageCad));
         $this->assertTrue($converter->support($imageJpeg));

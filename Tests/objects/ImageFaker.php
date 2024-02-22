@@ -2,8 +2,8 @@
 
 namespace MrAuGir\Thumbnail\Tests\objects;
 
+use MrAuGir\Thumbnail\Converter\BinaryConverter;
 use MrAuGir\Thumbnail\Converter\Converter;
-use MrAuGir\Thumbnail\Converter\ImagickConverter;
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Model\Image;
 use MrAuGir\Thumbnail\Model\Option;
@@ -45,7 +45,7 @@ class ImageFaker
      * @return Converter
      */
     public static function getConverter() : Converter {
-        $converter = new ImagickConverter();
+        $converter = new BinaryConverter("convert");
         $converter->setConfiguration(self::getConfiguration());
 
         return $converter;

@@ -2,7 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
-use MrAuGir\Thumbnail\Converter\ImagickConverter;
+use MrAuGir\Thumbnail\Converter\BinaryConverter;
 use MrAuGir\Thumbnail\Engine;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\ExitCode;
@@ -22,7 +22,7 @@ class EngineTest extends TestCase
             $this->assertFileDoesNotExist(__DIR__."/images/thumbnail/thumb_test.jpg",sprintf(" path thumb image : %s", $path));
         }
 
-        $converter = new ImagickConverter();
+        $converter = new BinaryConverter("convert");
         $converter->setConfiguration($configuration);
 
         $process = Process::fromShellCommandline($converter->commandToExecute($image));
