@@ -38,6 +38,7 @@ class ThumbnailExtension extends Extension
         foreach ($converters as $id => $conf) {
             // create a converter definition
             $definition = $converterFactory->createDefinition($id,$conf);
+            $definition->addTag("mraugir.thumbnail.converter");
             $alias =  sprintf('thumbnail.converter.%s', $id);
             $container->setDefinition($id,$definition);
             $container->setDefinition($alias,$definition);
