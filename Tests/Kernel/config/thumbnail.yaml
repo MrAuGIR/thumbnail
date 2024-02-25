@@ -18,6 +18,6 @@ thumbnail:
                     - { name: "-q", value: "80" }
                 outputPath: "public/assets/thumbnail/"
     chains:
-        my_chain_1:
+        chain_web:
             - 'convert_vignette'
             - 'convert_screen_shot'
