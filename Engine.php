@@ -7,15 +7,37 @@ use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Logger\DummyLogger;
 use MrAuGir\Thumbnail\Model\Image;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\Process\Process;
 
 class Engine
 {
     protected ?LoggerInterface $logger;
 
-    public function __construct()
+    /**
+     * @var Converter[]
+     */
+    protected iterable $converters;
+
+    public function __construct(
+        #[TaggedIterator("mraugir.thumbnail.converter")] iterable $converters
+    )
     {
+        $this->converters = $converters;
         $this->logger = new DummyLogger();
+    }
+
+    /**
+     * @throws ImageConvertException
+     */
+    public function process(Image $image) : void {
+
+        foreach ($this->converters as $converter) {
+
+            if ($converter->support($image)) {
+                $this->processConvertion($image, $converter);
+            }
+        }
     }
 
     /**
@@ -41,5 +63,14 @@ class Engine
      */
     public function useLogger(LoggerInterface $logger) : void {
         $this->logger = $logger;
+    }
+
+    /**
+     * @param Converter $converter
+     * @return $this
+     */
+    public function addConverter(Converter $converter) : self {
+        $this->converters[] = $converter;
+        return $this;
     }
 }

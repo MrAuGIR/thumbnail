@@ -6,3 +6,7 @@ services:
     MrAuGir\Thumbnail\Converter\:
         resource: '../../Converter/*'
         public: true
+
+    MrAuGir\Thumbnail\Engine:
+        public: true
+        tags: ['mraugir.thumbnail.engine']

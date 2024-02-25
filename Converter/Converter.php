@@ -4,9 +4,7 @@ namespace MrAuGir\Thumbnail\Converter;
 
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Model\Image;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-#[AutoconfigureTag("mraugir.thumbnail.converter")]
 interface Converter
 {
     /**

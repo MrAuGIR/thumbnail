@@ -26,3 +26,36 @@ thumbnail:
         return new JsonResponse();
     }
 ```
+
+
+## Converter Chain
+
+```yaml
+# Config/packages/thumbnail.yaml
+thumbnail:
+    converters:
+        convert_mignature:
+            binary: "convert"
+            configuration:
+                prefix: "thumb_240x24_"
+                ext: "jpeg"
+                options:
+                    - { name: "-resize", value: "240x24"}
+                outputPath: "%kernel.project_dir%/public/assets/thumbnail/"
+        ....
+        
+    chains:
+        print_thumbnail:
+            - 'convert_mignature'
+            - 'convert_screen_shot'
+```
+
+### In a Controller
+
+```php
+    #[Route("/my/converters/chain", name: "my_converters_chain", methods: [Request::METHOD_GET])]
+    public function customMethodChain(Request $request, ConverterChain $printThumbnail) : JsonResponse {
+
+        return new JsonResponse();
+    }
+```

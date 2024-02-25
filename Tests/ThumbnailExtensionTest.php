@@ -3,7 +3,8 @@
 namespace MrAuGir\Thumbnail\Tests;
 
 use MrAuGir\Thumbnail\Converter\Converter;
-use MrAuGir\Thumbnail\Converter\ImagickConverter;
+use MrAuGir\Thumbnail\Converter\BinaryConverter;
+use MrAuGir\Thumbnail\Converter\ConverterChain;
 use MrAuGir\Thumbnail\Model\Configuration;
 use MrAuGir\Thumbnail\Tests\Kernel\ThumbnailTestKernel;
 use PHPUnit\Framework\MockObject\Exception;
@@ -19,9 +20,17 @@ class ThumbnailExtensionTest extends TestCase
         $kernel = $this->createThumbnailKernel();
         $container = $kernel->getContainer()->get('test.service_container');
 
+        // convert service
         $convert = $container->get("convert_vignette");
-
         $this->assertInstanceOf(Converter::class,$convert);
+
+        // chain service
+        $chain = $container->get("chain_web");
+        $this->assertInstanceOf(ConverterChain::class,$chain);
+        /** @var ConverterChain $converter */
+        foreach ($chain as $converter) {
+            $this->assertInstanceOf(Converter::class,$converter);
+        }
     }
 
     /**
@@ -51,9 +60,9 @@ class ThumbnailExtensionTest extends TestCase
      */
     private function getClientMocks(): array
     {
-        $convert = $this->createMock(ImagickConverter::class);
+        $convert = $this->createMock(BinaryConverter::class);
         $convert->setConfiguration($this->createMock(Configuration::class));
-        $convert->method('setConfiguration')->willReturn($this->createMock(ImagickConverter::class));
+        $convert->method('setConfiguration')->willReturn($this->createMock(BinaryConverter::class));
 
         return [
             'convert_vignette' => $convert,
