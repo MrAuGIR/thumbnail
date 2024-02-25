@@ -8,3 +8,16 @@ thumbnail:
                 options:
                     - { name: "-resize", value: "240x24"}
                 outputPath: "public/assets/thumbnail/"
+        convert_screen_shot:
+            binary: "convert"
+            configuration:
+                prefix: "thumb_1024x800_"
+                ext: "jpeg"
+                options:
+                    - { name: "-resize", value: "1024x800" }
+                    - { name: "-q", value: "80" }
+                outputPath: "public/assets/thumbnail/"
+    chains:
+        my_chain_1:
+            - 'convert_vignette'
+            - 'convert_screen_shot'

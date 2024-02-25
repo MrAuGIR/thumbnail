@@ -2,7 +2,9 @@
 
 namespace MrAuGir\Thumbnail\Converter;
 
-class ConverterChain
+use Traversable;
+
+class ConverterChain implements \IteratorAggregate
 {
     /**
      * @var Converter[]
@@ -20,5 +22,10 @@ class ConverterChain
     public function getChain() : array
     {
         return $this->chain;
+    }
+
+    public function getIterator(): Traversable
+    {
+        return new \ArrayIterator($this->chain);
     }
 }

@@ -30,19 +30,27 @@ class Configuration implements ConfigurationInterface
                                 ->scalarNode('prefix')->isRequired()->end()
                                 ->scalarNode('ext')->isRequired()->end()
                                 ->arrayNode('options')
-                                ->arrayPrototype()
-                                    ->children()
-                                        ->scalarNode('name')->isRequired()->end()
-                                        ->scalarNode('value')->isRequired()->end()
+                                    ->arrayPrototype()
+                                        ->children()
+                                             ->scalarNode('name')->isRequired()->end()
+                                             ->scalarNode('value')->isRequired()->end()
+                                        ->end()
                                     ->end()
                                 ->end()
+                                ->scalarNode('outputPath')->isRequired()->end()
                             ->end()
-                        ->scalarNode('outputPath')->isRequired()->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end()
-            ->end()
+                ->arrayNode("chains")
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
+                        ->prototype('scalar')->end()
+                    ->end()
+                ->end()
             ->end();
+        ;
 
 
         return $treeBuilder;
