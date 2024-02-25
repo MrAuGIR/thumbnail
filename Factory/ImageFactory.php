@@ -15,12 +15,16 @@ class ImageFactory
      */
     public static function create(string $path) : Image {
         return match (self::detectSource($path)) {
-            Image\Source::URL => self::createTempFileFromUrl($path) ,
+            Image\Source::URL => new Image(self::createTempFileFromUrl($path)) ,
             Image\Source::ABSOLUTE => new Image($path) ,
             Image\Source::UNKNOW => throw new UnknowSourceImage(sprintf("unknow source image %s",$path)),
         };
     }
 
+    /**
+     * @param string $path
+     * @return Image\Source
+     */
     public static function detectSource(string $path) : Image\Source {
         if (self::detectUrl($path)) {
             return Image\Source::URL;

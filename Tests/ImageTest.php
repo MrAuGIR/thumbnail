@@ -2,6 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
+use MrAuGir\Thumbnail\Exception\UnknowSourceImage;
 use MrAuGir\Thumbnail\Factory\ImageFactory;
 use MrAuGir\Thumbnail\Model\Image;
 use MrAuGir\Thumbnail\Tests\objects\ImageFaker;
@@ -21,6 +22,7 @@ class ImageTest extends TestCase
 
     /**
      * @return void
+     * @throws UnknowSourceImage
      */
     public function testFactoryImage() : void
     {
@@ -34,6 +36,10 @@ class ImageTest extends TestCase
         $path =  realpath(__DIR__ . "/images/test.jpg");
         $isPath = $factory::detectSource($path);
         $this->assertEquals(Image\Source::ABSOLUTE,$isPath);
+
+        $img = $factory::create($url);
+        $this->assertInstanceOf(Image::class,$img);
+
 
     }
 }
