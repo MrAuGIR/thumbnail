@@ -2,7 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
-use MrAuGir\Thumbnail\Exception\UnknowSourceImage;
+use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
 use MrAuGir\Thumbnail\Factory\ImageFactory;
 use MrAuGir\Thumbnail\Model\Image;
 use MrAuGir\Thumbnail\Tests\objects\ImageFaker;
@@ -22,7 +22,7 @@ class ImageTest extends TestCase
 
     /**
      * @return void
-     * @throws UnknowSourceImage
+     * @throws UnknowSourceImageException
      */
     public function testFactoryImage() : void
     {

@@ -59,3 +59,9 @@ thumbnail:
         return new JsonResponse();
     }
 ```
+
+
+### TODO LIST
+
+1. Utiliser la class Extension du bundle pour injecter les paramètres sur les path du projet, des fichier temporaires
+2. injecter ces paramètres sur un services de gestion de fichiers qui sera utiliser ensuite par les services de conversions

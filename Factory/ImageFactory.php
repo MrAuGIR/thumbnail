@@ -2,7 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Factory;
 
-use MrAuGir\Thumbnail\Exception\UnknowSourceImage;
+use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
 use MrAuGir\Thumbnail\ImageFileManager;
 use MrAuGir\Thumbnail\Model\Image;
 
@@ -11,13 +11,14 @@ class ImageFactory
     /**
      * @param string $path
      * @return Image
-     * @throws UnknowSourceImage
+     * @throws UnknowSourceImageException
      */
-    public static function create(string $path) : Image {
+    public static function create(string $path): Image
+    {
         return match (self::detectSource($path)) {
-            Image\Source::URL => new Image(self::createTempFileFromUrl($path)) ,
-            Image\Source::ABSOLUTE => new Image($path) ,
-            Image\Source::UNKNOW => throw new UnknowSourceImage(sprintf("unknow source image %s",$path)),
+            Image\Source::URL => new Image(self::createTempFileFromUrl($path)),
+            Image\Source::ABSOLUTE => new Image($path),
+            Image\Source::UNKNOW => throw new UnknowSourceImageException(sprintf("unknow source image %s", $path)),
         };
     }
 
@@ -25,7 +26,8 @@ class ImageFactory
      * @param string $path
      * @return Image\Source
      */
-    public static function detectSource(string $path) : Image\Source {
+    public static function detectSource(string $path): Image\Source
+    {
         if (self::detectUrl($path)) {
             return Image\Source::URL;
         } elseif (self::detectAbsolutePath($path)) {
@@ -38,7 +40,8 @@ class ImageFactory
      * @param string $path
      * @return bool
      */
-    public static function detectUrl(string $path) : bool {
+    public static function detectUrl(string $path): bool
+    {
         return filter_var($path, FILTER_VALIDATE_URL) !== false;
     }
 
@@ -46,12 +49,18 @@ class ImageFactory
      * @param string $path
      * @return bool
      */
-    public static function detectAbsolutePath(string $path) : bool {
+    public static function detectAbsolutePath(string $path): bool
+    {
         return is_file($path);
     }
 
-    public static function createTempFileFromUrl(string $url) : string {
+    /**
+     * @param string $url
+     * @return string
+     */
+    public static function createTempFileFromUrl(string $url): string
+    {
         $imageManager = new ImageFileManager();
-        return $imageManager->createTemporyImage($url);
+        return $imageManager->createResource($url);
     }
 }
