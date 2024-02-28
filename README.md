@@ -60,6 +60,25 @@ thumbnail:
     }
 ```
 
+### Exemple
+
+```php
+    #[Route("/my/converters/chain", name: "my_converters_chain", methods: [Request::METHOD_POST])]
+    public function customMethodChain(Request $request, ConverterChain $printThumbnail, Engine $engine) : JsonResponse {
+        $body = $request->toArray();
+        if (empty($path = $body['path'])) {
+            throw new InvalidArgumentException("image path not found");
+        }
+        $image = ImageFactory::create($path);
+
+        foreach ($printThumbnail as $converter) {
+            $engine->processConvertion($image, $converter);
+        }
+
+        return new JsonResponse();
+    }
+```
+
 
 ### TODO LIST
 

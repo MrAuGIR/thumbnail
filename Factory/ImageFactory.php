@@ -2,6 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Factory;
 
+use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
 use MrAuGir\Thumbnail\ImageFileManager;
 use MrAuGir\Thumbnail\Model\Image;
@@ -11,7 +12,7 @@ class ImageFactory
     /**
      * @param string $path
      * @return Image
-     * @throws UnknowSourceImageException
+     * @throws UnknowSourceImageException|CreateTmpFileException
      */
     public static function create(string $path): Image
     {
@@ -57,6 +58,7 @@ class ImageFactory
     /**
      * @param string $url
      * @return string
+     * @throws CreateTmpFileException
      */
     public static function createTempFileFromUrl(string $url): string
     {

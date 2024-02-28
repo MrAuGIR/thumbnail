@@ -2,6 +2,7 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
+use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
 use MrAuGir\Thumbnail\Factory\ImageFactory;
 use MrAuGir\Thumbnail\Model\Image;
@@ -22,7 +23,7 @@ class ImageTest extends TestCase
 
     /**
      * @return void
-     * @throws UnknowSourceImageException
+     * @throws UnknowSourceImageException|CreateTmpFileException
      */
     public function testFactoryImage() : void
     {
@@ -40,6 +41,7 @@ class ImageTest extends TestCase
         $img = $factory::create($url);
         $this->assertInstanceOf(Image::class,$img);
 
-
+        $this->assertEquals('',$img->getExtension()); // l'url n'a pas d'extension
+        $this->assertEquals('image/jpeg',$img->getTypeMime());
     }
 }

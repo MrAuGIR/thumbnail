@@ -3,33 +3,37 @@
 namespace MrAuGir\Thumbnail;
 
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Uid\Uuid;
+use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 
 class ImageFileManager
 {
-
     private Filesystem $fileSystem;
-
-    private string $tempDir;
 
     public function __construct()
     {
         $this->fileSystem = new Filesystem();
-        $this->tempDir = "/var/www/html/var/tmp".DIRECTORY_SEPARATOR."thumbnails";
-        $this->fileSystem->mkdir($this->tempDir);
     }
 
     /**
      * @param $url
      * @return string
+     * @throws CreateTmpFileException
      */
     public function createResource($url): string
     {
         $content = file_get_contents($url);
-        $path = $this->tempDir.DIRECTORY_SEPARATOR."tmp_file_" . Uuid::v4() . '.jpeg';
-        echo $path.PHP_EOL;
-        $this->fileSystem->dumpFile($path,$content);
 
-        return $path;
+        if (false === $input = tempnam($path = sys_get_temp_dir(), 'thumb_')) {
+            throw new CreateTmpFileException(sprintf('Error created tmp file in "%s".', $path));
+        }
+
+        $this->fileSystem->dumpFile($input,$content);
+
+        return $input;
+    }
+
+    public function cleaner(string $tmpFile): void
+    {
+        unlink($tmpFile);
     }
 }
