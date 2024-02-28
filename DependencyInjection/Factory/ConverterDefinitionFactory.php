@@ -22,6 +22,7 @@ class ConverterDefinitionFactory
         $definition->setPublic(true);
         $definition->setClass(BinaryConverter::class);
         $definition->addArgument($resolverConfig['binary']);
+        $definition->addArgument($id);
 
         // Configuration
         $this->configureDefinition($definition,$resolverConfig);

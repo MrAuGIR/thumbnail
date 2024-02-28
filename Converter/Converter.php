@@ -24,4 +24,9 @@ interface Converter
      * @return string
      */
     public function commandToExecute(Image $image) : string;
+
+    /**
+     * @return string|null
+     */
+    public function getId() : ?string;
 }

@@ -46,4 +46,13 @@ class ConverterTest extends TestCase
         $this->assertTrue($converter->support($image));
         $this->assertEquals($command,$converter->commandToExecute($image));
     }
+
+    public function testUserConverter() : void {
+
+        $converter = new BinaryConverter("convert");
+        $this->assertEquals(null,$converter->id);
+
+        $converter = new BinaryConverter("converter","thumbnail_web_800x800");
+        $this->assertEquals("thumbnail_web_800x800",$converter->id);
+    }
 }
