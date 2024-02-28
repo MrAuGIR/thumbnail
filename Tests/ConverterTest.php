@@ -50,9 +50,9 @@ class ConverterTest extends TestCase
     public function testUserConverter() : void {
 
         $converter = new BinaryConverter("convert");
-        $this->assertEquals(null,$converter->id);
+        $this->assertEquals(null,$converter->getId());
 
         $converter = new BinaryConverter("converter","thumbnail_web_800x800");
-        $this->assertEquals("thumbnail_web_800x800",$converter->id);
+        $this->assertEquals("thumbnail_web_800x800",$converter->getId());
     }
 }

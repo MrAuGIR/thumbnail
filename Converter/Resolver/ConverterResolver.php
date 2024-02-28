@@ -3,6 +3,7 @@
 namespace MrAuGir\Thumbnail\Converter\Resolver;
 
 use MrAuGir\Thumbnail\Converter\Converter;
+use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 class ConverterResolver
@@ -24,15 +25,16 @@ class ConverterResolver
 
     /**
      * @param string $converterId
-     * @return Converter|null
+     * @return Converter
+     * @throws ConverterNotFoundException
      */
-    public function resolve(string $converterId): ?Converter
+    public function resolve(string $converterId): Converter
     {
         foreach ($this->converters as $converter) {
             if ($converterId == $converter->getId() ) {
                 return $converter;
             }
         }
-        return null;
+        throw new ConverterNotFoundException(sprintf("Converter with id '%s'",$converterId));
     }
 }

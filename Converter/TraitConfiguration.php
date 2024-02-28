@@ -9,6 +9,14 @@ trait TraitConfiguration
     public Configuration $configuration;
 
     /**
+     * @return Configuration
+     */
+    public function getConfiguration(): Configuration
+    {
+        return $this->configuration;
+    }
+
+    /**
      * @param Configuration $configuration
      * @return Converter
      */

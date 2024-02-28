@@ -79,8 +79,35 @@ thumbnail:
     }
 ```
 
+# Work In Progress ConverterHandler
+### URL de resolution thumbnail
+```php
+
+class TestController extends AbstractController
+{
+    public function __construct(
+        private readonly ConverterResolver $converterResolver,
+        private readonly Engine            $engine
+    ){}
+    
+     /**
+     * @throws CreateTmpFileException
+     * @throws UnknowSourceImageException
+     * @throws ImageConvertException
+     */
+    #[Route("/thumbnail/call/{converter}/{path}", name: "mraugir_thumbnail_converter", requirements: ["path" => ".+" ], methods: ["GET"])]
+    public function thumbnailAction(Request $request, string $converter, string $path) : Response {
+
+        $image = ImageFactory::create($path);
+        $converter = $this->converterResolver->resolve($converter);
+
+        $outputPath = $this->engine->processConvertion($image,$converter);
+
+        return new BinaryFileResponse($outputPath,200, ['Content-Type' => "image/jpeg"]);
+    }
+```
 
 ### TODO LIST
 
-1. Utiliser la class Extension du bundle pour injecter les paramètres sur les path du projet, des fichier temporaires
-2. injecter ces paramètres sur un services de gestion de fichiers qui sera utiliser ensuite par les services de conversions
+1. Utiliser la class Extension du bundle pour injecter les paramètres sur les path du projet, des fichiers temporaires
+2. injecter ces paramètres sur un service de gestion de fichiers qui sera utiliser ensuite par les services de conversions
