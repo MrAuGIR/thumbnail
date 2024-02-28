@@ -30,10 +30,9 @@ class Engine
     /**
      * @throws ImageConvertException
      */
-    public function process(Image $image) : void {
-
+    public function process(Image $image): void
+    {
         foreach ($this->converters as $converter) {
-
             if ($converter->support($image)) {
                 $this->processConvertion($image, $converter);
             }
@@ -46,14 +45,14 @@ class Engine
      * @return void
      * @throws ImageConvertException
      */
-    public function processConvertion(Image $image, Converter $converter) : void {
-
-        $this->logger->info(sprintf("commande %s",$converter->commandToExecute($image)));
+    public function processConvertion(Image $image, Converter $converter): void
+    {
+        $this->logger->info(sprintf("commande %s", $converter->commandToExecute($image)));
         $process = Process::fromShellCommandline($converter->commandToExecute($image));
         $process->run();
 
         if (!$process->isSuccessful()) {
-            throw new ImageConvertException("Exception while convert image ".$image->getPath(). '-'.$process->getErrorOutput());
+            throw new ImageConvertException("Exception while convert image " . $image->getPath() . '-' . $process->getErrorOutput());
         }
     }
 
@@ -61,7 +60,8 @@ class Engine
      * @param LoggerInterface $logger
      * @return void
      */
-    public function useLogger(LoggerInterface $logger) : void {
+    public function useLogger(LoggerInterface $logger): void
+    {
         $this->logger = $logger;
     }
 
@@ -69,7 +69,8 @@ class Engine
      * @param Converter $converter
      * @return $this
      */
-    public function addConverter(Converter $converter) : self {
+    public function addConverter(Converter $converter): self
+    {
         $this->converters[] = $converter;
         return $this;
     }
