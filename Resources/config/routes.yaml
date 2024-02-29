@@ -1,0 +1,4 @@
+mraugir_thumbnail_bundle:
+    resource: "@MrAuGirThumbnailBundle/Action/"
+    prefix: /
+    type: attribute
