@@ -2,6 +2,28 @@
 
 https://doc.ubuntu-fr.org/imagemagick
 
+## Installation
+
+#### Enable
+
+```php
+<?php
+// config/bundles.php
+return [
+    ...
+    MrAuGir\Thumbnail\ThumbnailBundle::class => ['all' => true]
+];
+
+```
+
+#### routing
+```yaml
+# config/routes/mraugir_thumbnail.yaml
+
+_mraugir_thumbnail:
+    resource: "@ThumbnailBundle/Resources/config/routes.yaml"
+```
+
 ## Usages
 ```yaml
 # config/packages/thumbnail.yaml
