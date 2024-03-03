@@ -10,9 +10,8 @@ use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
-class ConvertImage
+class ConvertImageController
 {
     public function __construct(
         private readonly InputFactory $inputFactory,
@@ -25,7 +24,6 @@ class ConvertImage
      * @throws UnknowSourceImageException
      * @throws ConverterNotFoundException|ImageConvertException
      */
-    #[Route("/thumbnail/call/{converter}/{path}", name: "mraugir_thumbnail_converter", requirements: ["path" => ".+" ], methods: ["GET"])]
     public function __invoke(Request $request,string $converter, string $path) : BinaryFileResponse
     {
         $input = $this->inputFactory->createFromRequest($converter,$path);

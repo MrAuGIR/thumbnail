@@ -1,4 +1,8 @@
-mraugir_thumbnail_bundle:
-    resource: "@MrAuGirThumbnailBundle/Action/"
-    prefix: /
-    type: attribute
+thumbnail_convert_image:
+    path: /thumbnail/call/{converter}/{path}
+    controller: MrAuGir\Thumbnail\Action\ConvertImageController
+    methods:
+        - GET
+    requirements:
+        filter: '[A-z0-9_-]*'
+        path: .+

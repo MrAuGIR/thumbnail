@@ -10,7 +10,7 @@ services:
         resource: '../../Action/*'
         exclude:
             - '../../Action/Input/'
-            - '../../Action/Output'
+            - '../../Action/Output/'
         public: true
         tags: ['controller.service_arguments']
 
