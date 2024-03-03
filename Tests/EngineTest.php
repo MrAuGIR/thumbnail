@@ -38,12 +38,12 @@ class EngineTest extends TestCase
      * @throws ImageConvertException
      */
     public function testEngine() : void {
-        $engine = new Engine([ImageFaker::getConverter()]);
+        $engine = new Engine();
         $image = ImageFaker::getImage("test.jpg");
 
         $this->assertEquals(0,ExitCode::SUCCESS->value);
         $this->assertEquals(1,ExitCode::FAILURE->value);
 
-        $engine->process($image);
+        $engine->processConvertion($image, ImageFaker::getConverter());
     }
 }

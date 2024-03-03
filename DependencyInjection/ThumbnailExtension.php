@@ -13,7 +13,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class ThumbnailExtension extends Extension
 {
-
     /**
      * @inheritDoc
      * @throws \Exception

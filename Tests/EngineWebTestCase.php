@@ -20,7 +20,7 @@ class EngineWebTestCase extends WebTestCase
         $this->assertResponseIsSuccessful("check if symfony browser kit is here");
     }
 
-    public function testThumbnailAction() : void {
+    public function testDynamiqueThumbnailAction() : void {
         $client = static::createClient();
 
         $client->request('POST', "/test/thumbnail",[], [], [], json_encode([
@@ -37,5 +37,13 @@ class EngineWebTestCase extends WebTestCase
         ]));
 
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode(),$client->getResponse()->getContent());
+    }
+
+    public function testThumbnailAction() : void {
+        $client = static::createClient();
+
+        $client->request("GET","/thumbnail/call/convert_screen_shot/public/assets/test.jpg");
+
+        $this->assertEquals(Response::HTTP_OK,$client->getResponse()->getStatusCode());
     }
 }

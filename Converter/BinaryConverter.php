@@ -6,7 +6,7 @@ use MrAuGir\Thumbnail\Model\Image;
 
 class BinaryConverter implements Converter
 {
-    use TraitConfiguration;
+    use TraitConfiguration, TraitIdentifier;
 
     public string $binaryName = "convert";
 
@@ -19,10 +19,12 @@ class BinaryConverter implements Converter
 
     /**
      * @param string $binaryName
+     * @param string|null $id
      */
-    public function __construct(string $binaryName = 'convert')
+    public function __construct(string $binaryName = 'convert',string $id = null)
     {
         $this->binaryName = $binaryName;
+        $this->id = $id;
     }
 
     /**
