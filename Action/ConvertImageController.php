@@ -15,7 +15,7 @@ class ConvertImageController
 {
     public function __construct(
         private readonly InputFactory $inputFactory,
-        private readonly ConvertImageCommand $convertImageFactory
+        private readonly ConvertImageCommand $convertImageCmd
     )
     {}
 
@@ -28,7 +28,7 @@ class ConvertImageController
     {
         $input = $this->inputFactory->createFromRequest($converter,$path);
 
-        $outputPath = $this->convertImageFactory->executeFromInput($input);
+        $outputPath = $this->convertImageCmd->executeFromInput($input);
 
         return (new ConvertImageOutput($outputPath))->getBinaryFileResponse();
     }
