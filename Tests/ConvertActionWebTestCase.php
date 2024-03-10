@@ -2,11 +2,12 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use MrAuGir\Thumbnail\Tests\Kernel\ThumbnailTest;
+use PHPUnit\Framework\MockObject\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ConvertActionWebTestCase extends WebTestCase
+class ConvertActionWebTestCase extends ThumbnailTest
 {
     public function testCallConvert(): void
     {
@@ -32,9 +33,12 @@ class ConvertActionWebTestCase extends WebTestCase
         $this->assertResponseStatusCodeSame(500);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCallChainConverter(): void
     {
-        $client = static::createClient();
+        $client = static::createClient([],['kernel' => $this->createThumbnailKernel()]);
 
         $crawler = $client->request(Request::METHOD_GET,'/chain/call/print_thumbnail/https://picsum.photos/200/300');
 
