@@ -2,10 +2,10 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use MrAuGir\Thumbnail\Tests\Kernel\ThumbnailTest;
 use Symfony\Component\HttpFoundation\Response;
 
-class EngineWebTestCase extends WebTestCase
+class EngineWebTestCase extends ThumbnailTest
 {
     public function testDefaultBrowserKit(): void
     {

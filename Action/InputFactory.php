@@ -15,4 +15,9 @@ class InputFactory
     {
         return new ConvertImageInput($convert,$path);
     }
+
+    public function createConvertChainFromRequest(string $chain, string $path): ConvertImageInput
+    {
+        return new ConvertImageInput($chain,$path);
+    }
 }

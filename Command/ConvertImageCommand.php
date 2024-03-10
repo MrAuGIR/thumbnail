@@ -3,8 +3,6 @@
 namespace MrAuGir\Thumbnail\Command;
 
 use MrAuGir\Thumbnail\Action\Input\ConvertImageInput;
-use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
-use MrAuGir\Thumbnail\Engine;
 use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
@@ -13,15 +11,8 @@ use MrAuGir\Thumbnail\Factory\ImageFactory;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 #[Autoconfigure]
-class ConvertImageCommand
+class ConvertImageCommand extends ConvertImage
 {
-    public function __construct(
-        private readonly Engine            $engine,
-        private readonly ConverterResolver $converterResolver,
-    )
-    {
-    }
-
     /**
      * @throws CreateTmpFileException
      * @throws ImageConvertException

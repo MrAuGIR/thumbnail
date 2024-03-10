@@ -2,10 +2,12 @@
 
 namespace MrAuGir\Thumbnail\Tests;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use MrAuGir\Thumbnail\Tests\Kernel\ThumbnailTest;
+use PHPUnit\Framework\MockObject\Exception;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ConvertActionWebTestCase extends WebTestCase
+class ConvertActionWebTestCase extends ThumbnailTest
 {
     public function testCallConvert(): void
     {
@@ -29,5 +31,31 @@ class ConvertActionWebTestCase extends WebTestCase
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $client->getResponse()->getStatusCode(),$client->getResponse()->getContent());
         $this->assertResponseStatusCodeSame(500);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testCallChainConverter(): void
+    {
+        $client = static::createClient([],['kernel' => $this->createThumbnailKernel()]);
+
+        $crawler = $client->request(Request::METHOD_GET,'/chain/call/print_thumbnail/https://picsum.photos/200/300');
+
+        $this->assertEquals(
+            Response::HTTP_OK,
+            $client->getResponse()->getStatusCode(),
+            sprintf(" expect %s found %s",Response::HTTP_OK,$client->getResponse()->getStatusCode())
+        );
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testIssueCallChainConverter(): void
+    {
+        $client = static::createClient();
+
+        $crawler = $client->request(Request::METHOD_GET,'/chain/call/unknow_chain/https://picsum.photos/200/300');
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_INTERNAL_SERVER_ERROR,"Expected 500 found ".$client->getResponse()->getStatusCode());
     }
 }
