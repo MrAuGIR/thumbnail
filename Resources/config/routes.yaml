@@ -6,3 +6,12 @@ thumbnail_convert_image:
     requirements:
         filter: '[A-z0-9_-]*'
         path: .+
+
+chain_thumbnail_convert_image:
+    path: /chain/call/{chain}/{path}
+    controller: MrAuGir\Thumbnail\Action\ConvertChainController
+    methods:
+        - GET
+    requirements:
+        filter: '[A-z0-9_-]*'
+        path: .+

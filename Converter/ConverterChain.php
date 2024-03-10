@@ -6,10 +6,17 @@ use Traversable;
 
 class ConverterChain implements \IteratorAggregate
 {
+    use TraitIdentifier;
+
     /**
      * @var Converter[]
      */
     private array $chain;
+
+    public function __construct(string $id = null)
+    {
+        $this->id = $id;
+    }
 
     public function add(Converter $converter) : self {
         $this->chain[] = $converter;

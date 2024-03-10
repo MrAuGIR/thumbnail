@@ -9,8 +9,8 @@ use MrAuGir\Thumbnail\Engine;
 abstract class ConvertImage
 {
     public function __construct(
-        protected readonly Engine            $engine,
-        protected readonly ConverterResolver $converterResolver,
+        protected Engine            $engine,
+        protected ConverterResolver $converterResolver,
     )
     {
     }

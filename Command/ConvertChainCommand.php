@@ -13,11 +13,11 @@ use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
 use MrAuGir\Thumbnail\Factory\ImageFactory;
 
-class ConvertChainImageCommand extends ConvertImage
+class ConvertChainCommand extends ConvertImage
 {
     public function __construct(
-        protected readonly Engine            $engine,
-        protected readonly ConverterResolver $converterResolver,
+        protected Engine            $engine,
+        protected ConverterResolver $converterResolver,
         protected readonly ConverterChainResolver $converterChainResolver
     )
     {
