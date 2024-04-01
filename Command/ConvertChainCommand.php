@@ -26,21 +26,20 @@ class ConvertChainCommand extends ConvertImage
 
     /**
      * @param ConvertImageInput $input
-     * @return string
+     * @return iterable
      * @throws ConverterNotFoundException
      * @throws CreateTmpFileException
      * @throws ImageConvertException
      * @throws UnknowSourceImageException
      */
-    public function executeFromInput(ConvertImageInput $input) : string
+    public function executeFromInput(ConvertImageInput $input) : iterable
     {
         $image = ImageFactory::create($input->getPath());
 
         $chains = $this->converterChainResolver->resolve($input->getConverter());
 
         foreach ($chains as $converter) {
-            $this->engine->processConvertion($image, $converter);
+            yield $this->engine->processConvertion($image, $converter);
         }
-        return 'wip';
     }
 }

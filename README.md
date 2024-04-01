@@ -133,3 +133,4 @@ class TestController extends AbstractController
 
 1. Utiliser la class Extension du bundle pour injecter les paramètres sur les path du projet, des fichiers temporaires
 2. injecter ces paramètres sur un service de gestion de fichiers qui sera utiliser ensuite par les services de conversions
+3. permettre la conversion dynamique (passer un parametrage en post)
