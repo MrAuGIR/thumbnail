@@ -29,8 +29,11 @@ class ConvertChainController
     {
         $input = $this->inputFactory->createConvertChainFromRequest($chain, $path);
 
-        $outputPath = $this->convertImageCmd->executeFromInput($input);
+        $return = [];
+        foreach($this->convertImageCmd->executeFromInput($input) as $path) {
+            $return[] = $path;
+        }
 
-        return new JsonResponse([]);
+        return new JsonResponse(['path' => $return]);
     }
 }

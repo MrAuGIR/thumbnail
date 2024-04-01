@@ -15,5 +15,5 @@ abstract class ConvertImage
     {
     }
 
-    abstract public function executeFromInput(ConvertImageInput $input) : string;
+    abstract public function executeFromInput(ConvertImageInput $input) : iterable;
 }

@@ -19,11 +19,12 @@ class ConvertImageCommand extends ConvertImage
      * @throws UnknowSourceImageException
      * @throws ConverterNotFoundException
      */
-    public function executeFromInput(ConvertImageInput $input) : string
+    public function executeFromInput(ConvertImageInput $input) : iterable
     {
         $image = ImageFactory::create($input->getPath());
         $converter = $this->converterResolver->resolve($input->getConverter());
 
-        return $this->engine->processConvertion($image,$converter);
+        yield $this->engine->processConvertion($image,$converter);
+        return;
     }
 }

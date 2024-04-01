@@ -28,7 +28,7 @@ class ConvertImageController
     {
         $input = $this->inputFactory->createFromRequest($converter,$path);
 
-        $outputPath = $this->convertImageCmd->executeFromInput($input);
+        $outputPath = ($this->convertImageCmd->executeFromInput($input))->current();
 
         return (new ConvertImageOutput($outputPath))->getBinaryFileResponse();
     }
