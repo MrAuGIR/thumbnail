@@ -1,0 +1,23 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    MrAuGir\Thumbnail\Command\:
+        resource: '../../Command/*'
+
+    MrAuGir\Thumbnail\Action\:
+        resource: '../../Action/*'
+        exclude:
+            - '../../Action/Input/'
+            - '../../Action/Output/'
+        public: true
+        tags: ['controller.service_arguments']
+
+    MrAuGir\Thumbnail\Converter\:
+        resource: '../../Converter/*'
+        public: true
+
+    MrAuGir\Thumbnail\Engine:
+        public: true
+        tags: ['mraugir.thumbnail.engine']
