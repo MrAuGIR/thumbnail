@@ -1,11 +1,13 @@
 {
   "name": "mraugir/thumbnail",
-  "type": "library",
+  "type": "symfony-bundle",
   "description": "Eases the generation of thumbnail",
   "keywords": ["thumbnail","image","asset"],
+  "license": "MIT",
   "authors": [
     {
       "name": "Aurélien Girard",
+      "email": "mraugir.dev@gmail.com",
       "role": "Developer"
     }
   ],
@@ -20,11 +22,12 @@
   },
   "autoload": {
     "psr-4": {
-      "MrAuGir\\Thumbnail\\": ""
-    },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
+      "MrAuGir\\Thumbnail\\": "src/"
+    }
   },
-  "minimum-stability": "dev"
+  "autoload-dev": {
+    "psr-4": {
+      "MrAuGir\\Thumbnail\\Tests\\": "Tests/"
+    }
+  }
 }
