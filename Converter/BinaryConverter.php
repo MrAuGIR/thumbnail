@@ -38,11 +38,8 @@ class BinaryConverter implements Converter
     /**
      * @inheritDoc
      */
-    public function commandToExecute(Image $image): string
+    public function getCommand(Image $image): array
     {
-        return sprintf("%s %s",
-            $this->binaryName,
-            $this->configuration->getOtionsChain($image)
-        );
+        return array_merge([$this->binaryName], $this->configuration->getCommandArguments($image));
     }
 }

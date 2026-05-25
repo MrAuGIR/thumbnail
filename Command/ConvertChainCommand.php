@@ -18,10 +18,11 @@ class ConvertChainCommand extends ConvertImage
     public function __construct(
         protected Engine            $engine,
         protected ConverterResolver $converterResolver,
-        protected readonly ConverterChainResolver $converterChainResolver
+        protected readonly ConverterChainResolver $converterChainResolver,
+        ImageFactory $imageFactory,
     )
     {
-        parent::__construct($engine,$this->converterResolver);
+        parent::__construct($engine, $converterResolver, $imageFactory);
     }
 
     /**
@@ -34,12 +35,18 @@ class ConvertChainCommand extends ConvertImage
      */
     public function executeFromInput(ConvertImageInput $input) : iterable
     {
-        $image = ImageFactory::create($input->getPath());
+        $image = $this->imageFactory->create($input->getPath());
 
         $chains = $this->converterChainResolver->resolve($input->getConverter());
 
-        foreach ($chains as $converter) {
-            yield $this->engine->processConvertion($image, $converter);
+        try {
+            foreach ($chains as $converter) {
+                yield $this->engine->processConvertion($image, $converter);
+            }
+        } finally {
+            // The same temp source is shared by every converter in the chain:
+            // clean it up only after the whole chain ran (F2).
+            $this->imageFactory->cleanup($image);
         }
     }
 }

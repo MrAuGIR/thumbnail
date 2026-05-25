@@ -20,6 +20,24 @@ class Option
     }
 
     /**
+     * Returns the option as a list of process arguments (argv), never as a
+     * shell string: the value is only added when present so an empty value
+     * never becomes a stray empty argument.
+     *
+     * @return string[]
+     */
+    public function getArguments(): array
+    {
+        $arguments = [$this->name];
+
+        if (null !== $this->value && '' !== $this->value) {
+            $arguments[] = $this->value;
+        }
+
+        return $arguments;
+    }
+
+    /**
      * @return string
      */
     public function getName(): string

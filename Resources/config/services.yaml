@@ -18,6 +18,18 @@ services:
         resource: '../../Converter/*'
         public: true
 
+    MrAuGir\Thumbnail\ImageFileManager:
+        arguments:
+            $allowedHosts: '%thumbnail.allowed_hosts%'
+            $fetchTimeout: '%thumbnail.fetch_timeout%'
+            $maxFileSize: '%thumbnail.max_file_size%'
+
+    MrAuGir\Thumbnail\Factory\ImageFactory:
+        arguments:
+            $imageFileManager: '@MrAuGir\Thumbnail\ImageFileManager'
+
     MrAuGir\Thumbnail\Engine:
         public: true
+        arguments:
+            $processTimeout: '%thumbnail.process_timeout%'
         tags: ['mraugir.thumbnail.engine']

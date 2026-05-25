@@ -20,10 +20,13 @@ interface Converter
     public function setConfiguration(Configuration $configuration) : self;
 
     /**
+     * Returns the command to run as an argv array (binary + arguments) so it
+     * can be executed through Process without a shell.
+     *
      * @param Image $image
-     * @return string
+     * @return string[]
      */
-    public function commandToExecute(Image $image) : string;
+    public function getCommand(Image $image) : array;
 
     /**
      * @return string|null

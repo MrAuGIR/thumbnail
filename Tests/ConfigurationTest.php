@@ -35,9 +35,14 @@ class ConfigurationTest extends TestCase
 
         $this->assertEquals(__DIR__."/images/thumbnail/thumb_test.jpg",$configuration->getOutputFullPath($imageJpeg));
 
-        $chain = trim(escapeshellarg($imageJpeg->getPath())." -resize 125x25 -quality ".escapeshellarg($configuration->getOutputFullPath($imageJpeg)));
+        $expected = [
+            $imageJpeg->getPath(),
+            '-resize', '125x25',
+            '-quality',
+            $configuration->getOutputFullPath($imageJpeg),
+        ];
 
-        $this->assertEquals($chain, $configuration->getOtionsChain($imageJpeg));
+        $this->assertSame($expected, $configuration->getCommandArguments($imageJpeg));
     }
 
     public function testFactory() :void {

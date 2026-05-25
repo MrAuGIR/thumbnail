@@ -25,7 +25,7 @@ class EngineTest extends TestCase
         $converter = new BinaryConverter("convert");
         $converter->setConfiguration($configuration);
 
-        $process = Process::fromShellCommandline($converter->commandToExecute($image));
+        $process = new Process($converter->getCommand($image));
         $result = $process->run();
 
         $this->assertEquals(0,$result);
