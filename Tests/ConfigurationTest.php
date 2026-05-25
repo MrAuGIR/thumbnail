@@ -33,20 +33,19 @@ class ConfigurationTest extends TestCase
             ->addOption($optionWithoutValue)
             ->setOutputPath(__DIR__."/images/thumbnail/");
 
-        $this->assertEquals(__DIR__."/images/thumbnail/thumb_test.jpg",$configuration->getOutputFullPath($imageJpeg));
+        $outputPath = __DIR__."/images/thumbnail/thumb_out.jpg";
 
         $expected = [
             $imageJpeg->getPath(),
             '-resize', '125x25',
             '-quality',
-            $configuration->getOutputFullPath($imageJpeg),
+            $outputPath,
         ];
 
-        $this->assertSame($expected, $configuration->getCommandArguments($imageJpeg));
+        $this->assertSame($expected, $configuration->getCommandArguments($imageJpeg, $outputPath));
     }
 
     public function testFactory() :void {
-        $image= ImageFaker::getImage("test.jpg");
         /**
          * Factory Option
          */
@@ -78,7 +77,7 @@ class ConfigurationTest extends TestCase
 
         $configuration = ConfigurationFactory::create($arrayConfig);
         $this->assertInstanceOf(Configuration::class,$configuration);
-        $this->assertStringContainsString("thumb_25x125_",$configuration->getOutputFullPath($image));
-        $this->assertEquals("png",pathinfo($configuration->getOutputFullPath($image),PATHINFO_EXTENSION));
+        $this->assertEquals("thumb_25x125_",$configuration->getPrefix());
+        $this->assertEquals("png",$configuration->getExt());
     }
 }

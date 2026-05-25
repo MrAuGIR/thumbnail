@@ -29,6 +29,16 @@ interface Converter
     public function getCommand(Image $image) : array;
 
     /**
+     * Returns the deterministic output path for the given source, derived from a
+     * cache key (source + binary + options + ext). Identical inputs always map to
+     * the same path, which enables short-circuiting an already generated thumbnail.
+     *
+     * @param string $source
+     * @return string
+     */
+    public function getOutputPathForSource(string $source) : string;
+
+    /**
      * @return string|null
      */
     public function getId() : ?string;

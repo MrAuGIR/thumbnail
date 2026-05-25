@@ -2,9 +2,9 @@
 
 namespace MrAuGir\Thumbnail;
 
-use MrAuGir\Thumbnail\Converter\BinaryConverter;
 use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
+use MrAuGir\Thumbnail\Factory\ImageFactory;
 use MrAuGir\Thumbnail\Logger\DummyLogger;
 use MrAuGir\Thumbnail\Model\Image;
 use Psr\Log\LoggerInterface;
@@ -16,13 +16,70 @@ class Engine
     protected ?LoggerInterface $logger;
 
     /**
+     * @param ImageFactory $imageFactory Resolves a source (URL/path) into an Image, downloading remote sources.
      * @param int $processTimeout Maximum duration (seconds) a conversion process may run before being killed.
      */
     public function __construct(
+        private readonly ImageFactory $imageFactory,
         private readonly int $processTimeout = 60,
     )
     {
         $this->logger = new DummyLogger();
+    }
+
+    /**
+     * Returns the thumbnail path for a source, generating it only when missing.
+     * On a cache hit the source is never downloaded nor converted.
+     *
+     * @param string $source URL or local path of the original image.
+     * @param Converter $converter
+     * @return string Deterministic, cached output path.
+     * @throws ImageConvertException
+     */
+    public function thumbnail(string $source, Converter $converter): string
+    {
+        $outputPath = $converter->getOutputPathForSource($source);
+        if (is_file($outputPath)) {
+            return $outputPath;
+        }
+
+        $image = $this->imageFactory->create($source);
+        try {
+            return $this->processConvertion($image, $converter);
+        } finally {
+            $this->imageFactory->cleanup($image);
+        }
+    }
+
+    /**
+     * Generates thumbnails for several converters sharing the same source.
+     * The source is downloaded at most once (only if at least one render is
+     * missing), and each converter is cache-checked individually.
+     *
+     * @param string $source
+     * @param iterable<Converter> $converters
+     * @return iterable<string> Output paths, in order.
+     * @throws ImageConvertException
+     */
+    public function thumbnailAll(string $source, iterable $converters): iterable
+    {
+        $image = null;
+        try {
+            foreach ($converters as $converter) {
+                $outputPath = $converter->getOutputPathForSource($source);
+                if (is_file($outputPath)) {
+                    yield $outputPath;
+                    continue;
+                }
+
+                $image ??= $this->imageFactory->create($source);
+                yield $this->processConvertion($image, $converter);
+            }
+        } finally {
+            if (null !== $image) {
+                $this->imageFactory->cleanup($image);
+            }
+        }
     }
 
     /**
@@ -34,6 +91,14 @@ class Engine
     public function processConvertion(Image $image, Converter $converter): string
     {
         $command = $converter->getCommand($image);
+        $outputPath = $converter->getOutputPathForSource($image->getSourceId());
+
+        // Ensure the output directory exists before the binary writes into it.
+        $directory = dirname($outputPath);
+        if ('' !== $directory && !is_dir($directory)) {
+            @mkdir($directory, 0775, true);
+        }
+
         $this->logger->info(sprintf("commande %s", implode(' ', $command)));
 
         // Array mode (no shell): arguments are passed verbatim, never interpreted by /bin/sh.
@@ -53,8 +118,8 @@ class Engine
         if (!$process->isSuccessful()) {
             throw new ImageConvertException("Exception while convert image " . $image->getPath() . '-' . $process->getErrorOutput());
         }
-        /** @var BinaryConverter $converter */
-        return $converter->getConfiguration()->getOutputFullPath($image);
+
+        return $outputPath;
     }
 
     /**

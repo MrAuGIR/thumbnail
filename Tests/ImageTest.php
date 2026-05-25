@@ -18,6 +18,9 @@ class ImageTest extends TestCase
         $this->assertEquals("image/jpeg",$image->getTypeMime());
         $this->assertEquals("jpg",$image->getExtension());
         $this->assertEquals("test",$image->getFileName());
+        // For a local source the source id defaults to the path itself.
+        $this->assertEquals($image->getPath(), $image->getSourceId());
+        $this->assertFalse($image->isTemporary());
     }
 
     public function testDetectSource() : void

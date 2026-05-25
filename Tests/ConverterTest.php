@@ -28,7 +28,7 @@ class ConverterTest extends TestCase
 
         $converter->setConfiguration($configuration);
 
-        $expected = ['convert', $imageJpeg->getPath(), '-resize', '125x25', $configuration->getOutputFullPath($imageJpeg)];
+        $expected = ['convert', $imageJpeg->getPath(), '-resize', '125x25', $converter->getOutputPathForSource($imageJpeg->getSourceId())];
 
         $this->assertSame($expected, $converter->getCommand($imageJpeg));
     }
@@ -40,7 +40,7 @@ class ConverterTest extends TestCase
 
         $converter = ConverterFactory::create('convert',$configuration);
 
-        $expected = ['convert', $image->getPath(), '-resize', '125x25', $configuration->getOutputFullPath($image)];
+        $expected = ['convert', $image->getPath(), '-resize', '125x25', $converter->getOutputPathForSource($image->getSourceId())];
 
         $this->assertInstanceOf(Converter::class,$converter);
         $this->assertTrue($converter->support($image));
@@ -62,7 +62,34 @@ class ConverterTest extends TestCase
         $this->assertSame('convert', $command[0]);
         $this->assertSame($image->getPath(), $command[1]);
         $this->assertContains('200x300>', $command);
-        $this->assertSame($configuration->getOutputFullPath($image), end($command));
+        $this->assertSame($converter->getOutputPathForSource($image->getSourceId()), end($command));
+    }
+
+    public function testOutputPathIsDeterministicAndConfigSensitive() : void {
+
+        $makeConverter = function (string $binary, array $options): BinaryConverter {
+            $configuration = new Configuration($options);
+            $configuration->setOutputPath('/var/thumbnails/');
+            $converter = new BinaryConverter($binary);
+            $converter->setConfiguration($configuration);
+            return $converter;
+        };
+
+        $source = 'https://example.com/cover.jpg';
+        $base = $makeConverter('convert', [new Option('-resize', '200x')]);
+
+        // Deterministic: same source + same config => same path.
+        $this->assertSame($base->getOutputPathForSource($source), $base->getOutputPathForSource($source));
+        $this->assertStringStartsWith('/var/thumbnails/thumb_', $base->getOutputPathForSource($source));
+        $this->assertStringEndsWith('.jpg', $base->getOutputPathForSource($source));
+
+        // Sensitive to options, binary, and source.
+        $otherOptions = $makeConverter('convert', [new Option('-resize', '400x')]);
+        $otherBinary  = $makeConverter('magick', [new Option('-resize', '200x')]);
+
+        $this->assertNotSame($base->getOutputPathForSource($source), $otherOptions->getOutputPathForSource($source));
+        $this->assertNotSame($base->getOutputPathForSource($source), $otherBinary->getOutputPathForSource($source));
+        $this->assertNotSame($base->getOutputPathForSource($source), $base->getOutputPathForSource('https://example.com/other.jpg'));
     }
 
     public function testUserConverter() : void {

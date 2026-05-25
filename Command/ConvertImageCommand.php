@@ -20,14 +20,9 @@ class ConvertImageCommand extends ConvertImage
      */
     public function executeFromInput(ConvertImageInput $input) : iterable
     {
-        $image = $this->imageFactory->create($input->getPath());
         $converter = $this->converterResolver->resolve($input->getConverter());
 
-        try {
-            yield $this->engine->processConvertion($image, $converter);
-        } finally {
-            // Remove the downloaded temp source once the conversion is done (F2).
-            $this->imageFactory->cleanup($image);
-        }
+        // Engine::thumbnail short-circuits on a cache hit and handles temp cleanup (F1/F2).
+        yield $this->engine->thumbnail($input->getPath(), $converter);
     }
 }

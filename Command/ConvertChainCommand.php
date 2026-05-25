@@ -11,7 +11,6 @@ use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
-use MrAuGir\Thumbnail\Factory\ImageFactory;
 
 class ConvertChainCommand extends ConvertImage
 {
@@ -19,10 +18,9 @@ class ConvertChainCommand extends ConvertImage
         protected Engine            $engine,
         protected ConverterResolver $converterResolver,
         protected readonly ConverterChainResolver $converterChainResolver,
-        ImageFactory $imageFactory,
     )
     {
-        parent::__construct($engine, $converterResolver, $imageFactory);
+        parent::__construct($engine, $converterResolver);
     }
 
     /**
@@ -35,18 +33,9 @@ class ConvertChainCommand extends ConvertImage
      */
     public function executeFromInput(ConvertImageInput $input) : iterable
     {
-        $image = $this->imageFactory->create($input->getPath());
-
         $chains = $this->converterChainResolver->resolve($input->getConverter());
 
-        try {
-            foreach ($chains as $converter) {
-                yield $this->engine->processConvertion($image, $converter);
-            }
-        } finally {
-            // The same temp source is shared by every converter in the chain:
-            // clean it up only after the whole chain ran (F2).
-            $this->imageFactory->cleanup($image);
-        }
+        // Caches per converter, downloads the source at most once, cleans temp (F1/F2).
+        yield from $this->engine->thumbnailAll($input->getPath(), $chains);
     }
 }

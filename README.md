@@ -115,38 +115,39 @@ thumbnail:
 
 ```php
     #[Route("/my/converters/chain", name: "my_converters_chain", methods: [Request::METHOD_POST])]
-    public function customMethodChain(Request $request, ConverterChain $printThumbnail, Engine $engine, ImageFactory $imageFactory) : JsonResponse {
+    public function customMethodChain(Request $request, ConverterChain $printThumbnail, Engine $engine) : JsonResponse {
         $body = $request->toArray();
         if (empty($path = $body['path'])) {
             throw new InvalidArgumentException("image path not found");
         }
-        $image = $imageFactory->create($path);
 
-        try {
-            foreach ($printThumbnail as $converter) {
-                $engine->processConvertion($image, $converter);
-            }
-        } finally {
-            $imageFactory->cleanup($image); // removes the temp file for URL sources
-        }
+        // Downloads the source at most once, caches each render, cleans the temp file.
+        $paths = iterator_to_array($engine->thumbnailAll($path, $printThumbnail));
 
-        return new JsonResponse();
+        return new JsonResponse(['path' => $paths]);
     }
 ```
 
-# Work In Progress ConverterHandler
-### URL de resolution thumbnail
-```php
+## Caching
 
+`Engine::thumbnail(string $source, Converter $converter): string` returns a stable,
+cached output path. The file name is `prefix + <hash> . ext`, where the hash derives
+from **source + binary + options + ext**, so:
+
+- the **same** source and config always resolve to the **same** file;
+- a **cache hit short-circuits**: no download, no conversion — the existing path is returned;
+- changing the converter config (resize, quality, binary, …) yields a new file;
+- temp files downloaded from URLs are cleaned up automatically.
+
+```php
 class TestController extends AbstractController
 {
     public function __construct(
         private readonly ConverterResolver $converterResolver,
         private readonly Engine            $engine,
-        private readonly ImageFactory      $imageFactory
     ){}
-    
-     /**
+
+    /**
      * @throws CreateTmpFileException
      * @throws UnknowSourceImageException
      * @throws ImageConvertException
@@ -154,22 +155,17 @@ class TestController extends AbstractController
     #[Route("/thumbnail/call/{converter}/{path}", name: "mraugir_thumbnail_converter", requirements: ["path" => ".+" ], methods: ["GET"])]
     public function thumbnailAction(Request $request, string $converter, string $path) : Response {
 
-        $image = $this->imageFactory->create($path);
-        $converter = $this->converterResolver->resolve($converter);
+        $converter  = $this->converterResolver->resolve($converter);
+        $outputPath = $this->engine->thumbnail($path, $converter); // cached
 
-        try {
-            $outputPath = $this->engine->processConvertion($image,$converter);
-        } finally {
-            $this->imageFactory->cleanup($image);
-        }
-
-        return new BinaryFileResponse($outputPath,200, ['Content-Type' => "image/jpeg"]);
+        return new BinaryFileResponse($outputPath, 200, ['Content-Type' => "image/jpeg"]);
     }
+}
 ```
 
 ### TODO LIST
 
-1. Utiliser la class Extension du bundle pour injecter les paramètres sur les path du projet, des fichiers temporaires
-2. injecter ces paramètres sur un service de gestion de fichiers qui sera utiliser ensuite par les services de conversions
+1. ~~Utiliser la class Extension du bundle pour injecter les paramètres (paths, fichiers temporaires)~~ ✅
+2. ~~injecter ces paramètres sur un service de gestion de fichiers utilisé par les services de conversion~~ ✅
 3. permettre la conversion dynamique (passer un parametrage en post)
-4. gérer le cache pour ne pas re-générer le thumbnail à chaque fois
+4. ~~gérer le cache pour ne pas re-générer le thumbnail à chaque fois~~ ✅
