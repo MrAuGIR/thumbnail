@@ -1,3 +1,11 @@
+# SECURITY — These routes are UNAUTHENTICATED and accept an arbitrary `{path}`
+# (URL or local file path) that is converted server-side. Importing them as-is
+# exposes a public conversion endpoint. Before importing, you MUST protect them:
+#   - restrict access (firewall / access_control),
+#   - set `thumbnail.allowed_hosts` to the hosts you trust (see README),
+#   - and be aware the local-path branch can read any file readable by the web user.
+# Treat this file as an example: prefer wiring your own protected controller.
+
 thumbnail_convert_image:
     path: /thumbnail/call/{converter}/{path}
     controller: MrAuGir\Thumbnail\Action\ConvertImageController

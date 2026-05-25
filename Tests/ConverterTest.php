@@ -28,9 +28,9 @@ class ConverterTest extends TestCase
 
         $converter->setConfiguration($configuration);
 
-        $command = "convert ".escapeshellarg($imageJpeg->getPath())." -resize 125x25 ".escapeshellarg($configuration->getOutputFullPath($imageJpeg));
+        $expected = ['convert', $imageJpeg->getPath(), '-resize', '125x25', $configuration->getOutputFullPath($imageJpeg)];
 
-        $this->assertEquals($command,$converter->commandToExecute($imageJpeg));
+        $this->assertSame($expected, $converter->getCommand($imageJpeg));
     }
 
     public function testUseFactory() : void {
@@ -40,11 +40,29 @@ class ConverterTest extends TestCase
 
         $converter = ConverterFactory::create('convert',$configuration);
 
-        $command = "convert ".escapeshellarg($image->getPath())." -resize 125x25 ".escapeshellarg($configuration->getOutputFullPath($image));
+        $expected = ['convert', $image->getPath(), '-resize', '125x25', $configuration->getOutputFullPath($image)];
 
         $this->assertInstanceOf(Converter::class,$converter);
         $this->assertTrue($converter->support($image));
-        $this->assertEquals($command,$converter->commandToExecute($image));
+        $this->assertSame($expected, $converter->getCommand($image));
+    }
+
+    public function testCommandIsArgvWithoutShellInterpretation() : void {
+
+        $configuration = new Configuration([new Option('-resize', '200x300>')]);
+        $configuration->setOutputPath(__DIR__."/images/thumbnail/");
+
+        $converter = new BinaryConverter('convert');
+        $converter->setConfiguration($configuration);
+
+        $image = ImageFaker::getImage("test.jpg");
+        $command = $converter->getCommand($image);
+
+        // The metacharacter stays a literal, standalone argv element: no shell, no escaping, no redirection.
+        $this->assertSame('convert', $command[0]);
+        $this->assertSame($image->getPath(), $command[1]);
+        $this->assertContains('200x300>', $command);
+        $this->assertSame($configuration->getOutputFullPath($image), end($command));
     }
 
     public function testUserConverter() : void {

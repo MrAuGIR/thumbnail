@@ -8,13 +8,18 @@ use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Logger\DummyLogger;
 use MrAuGir\Thumbnail\Model\Image;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
 class Engine
 {
     protected ?LoggerInterface $logger;
 
+    /**
+     * @param int $processTimeout Maximum duration (seconds) a conversion process may run before being killed.
+     */
     public function __construct(
+        private readonly int $processTimeout = 60,
     )
     {
         $this->logger = new DummyLogger();
@@ -28,9 +33,22 @@ class Engine
      */
     public function processConvertion(Image $image, Converter $converter): string
     {
-        $this->logger->info(sprintf("commande %s", $converter->commandToExecute($image)));
-        $process = Process::fromShellCommandline($converter->commandToExecute($image));
-        $process->run();
+        $command = $converter->getCommand($image);
+        $this->logger->info(sprintf("commande %s", implode(' ', $command)));
+
+        // Array mode (no shell): arguments are passed verbatim, never interpreted by /bin/sh.
+        $process = new Process($command);
+        $process->setTimeout($this->processTimeout);
+
+        try {
+            $process->run();
+        } catch (ProcessTimedOutException $e) {
+            throw new ImageConvertException(
+                sprintf("Conversion of image %s timed out after %ds", $image->getPath(), $this->processTimeout),
+                0,
+                $e
+            );
+        }
 
         if (!$process->isSuccessful()) {
             throw new ImageConvertException("Exception while convert image " . $image->getPath() . '-' . $process->getErrorOutput());

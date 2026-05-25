@@ -7,7 +7,6 @@ use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
-use MrAuGir\Thumbnail\Factory\ImageFactory;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 #[Autoconfigure]
@@ -21,10 +20,14 @@ class ConvertImageCommand extends ConvertImage
      */
     public function executeFromInput(ConvertImageInput $input) : iterable
     {
-        $image = ImageFactory::create($input->getPath());
+        $image = $this->imageFactory->create($input->getPath());
         $converter = $this->converterResolver->resolve($input->getConverter());
 
-        yield $this->engine->processConvertion($image,$converter);
-        return;
+        try {
+            yield $this->engine->processConvertion($image, $converter);
+        } finally {
+            // Remove the downloaded temp source once the conversion is done (F2).
+            $this->imageFactory->cleanup($image);
+        }
     }
 }

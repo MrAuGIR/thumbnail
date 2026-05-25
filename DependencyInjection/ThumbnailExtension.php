@@ -22,6 +22,11 @@ class ThumbnailExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('thumbnail.allowed_hosts', $config['allowed_hosts']);
+        $container->setParameter('thumbnail.fetch_timeout', $config['fetch_timeout']);
+        $container->setParameter('thumbnail.max_file_size', $config['max_file_size']);
+        $container->setParameter('thumbnail.process_timeout', $config['process_timeout']);
+
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 

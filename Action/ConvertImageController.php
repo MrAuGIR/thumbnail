@@ -28,7 +28,9 @@ class ConvertImageController
     {
         $input = $this->inputFactory->createFromRequest($converter,$path);
 
-        $outputPath = ($this->convertImageCmd->executeFromInput($input))->current();
+        // Drain the generator fully so its finally block (temp-file cleanup) runs within the request.
+        $outputPaths = iterator_to_array($this->convertImageCmd->executeFromInput($input));
+        $outputPath = reset($outputPaths);
 
         return (new ConvertImageOutput($outputPath))->getBinaryFileResponse();
     }

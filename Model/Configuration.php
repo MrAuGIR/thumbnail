@@ -18,19 +18,23 @@ class Configuration
     }
 
     /**
+     * Builds the conversion arguments as an argv array (input, options, output)
+     * with no shell escaping: the command is run through Process in array mode,
+     * so metacharacters such as `>`, spaces or `;` stay inert literal arguments.
+     *
      * @param Image $image
-     * @return string
+     * @return string[]
      */
-    public function getOtionsChain(Image $image) : string {
-        $return = "";
+    public function getCommandArguments(Image $image) : array {
+        $arguments = [$image->getPath()];
+
         foreach ($this->options as $option) {
-            $return .= $option->getLineOption().' ';
+            $arguments = array_merge($arguments, $option->getArguments());
         }
-        return  sprintf("%s %s %s",
-            escapeshellarg($image->getPath()),
-            trim($return),
-            escapeshellarg($this->getOutputFullPath($image))
-        );
+
+        $arguments[] = $this->getOutputFullPath($image);
+
+        return $arguments;
     }
 
     /**
