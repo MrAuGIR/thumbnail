@@ -151,3 +151,8 @@ Ces briques pourraient remonter dans le bundle :
 - `CoverExtension` : fonction Twig `cover_thumb(url)` (pass-through si URL vide/étrangère).
 - Stockage déplacé en `var/thumbnails/` (inscriptible par le serveur web), dossier ouvert en 0777 (partage web/CLI).
 - En config : options **sans métacaractère** (`-thumbnail 200x`, pas de `>`) à cause de S1.
+
+
+## Rules
+1. Toujours des messages de commit court.
+2. Prefixé les messages de commits [hotfix] [feature] [doc] 
