@@ -40,6 +40,28 @@ class BinaryConverter implements Converter
      */
     public function getCommand(Image $image): array
     {
-        return array_merge([$this->binaryName], $this->configuration->getCommandArguments($image));
+        $outputPath = $this->getOutputPathForSource($image->getSourceId());
+
+        return array_merge([$this->binaryName], $this->configuration->getCommandArguments($image, $outputPath));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getOutputPathForSource(string $source): string
+    {
+        $config = $this->configuration;
+
+        // Cache key = source + binary + options + ext: changing the conversion
+        // config (resize, quality, binary, …) yields a new file; the same inputs
+        // always map to the same path (deterministic, no random temp name).
+        $parts = [$source, $this->binaryName, $config->getPrefix(), $config->getExt()];
+        foreach ($config->getOptions() as $option) {
+            $parts[] = implode(' ', $option->getArguments());
+        }
+
+        $key = substr(hash('sha256', implode("\0", $parts)), 0, 32);
+
+        return $config->getOutputPath() . $config->getPrefix() . $key . '.' . $config->getExt();
     }
 }

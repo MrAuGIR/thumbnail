@@ -21,18 +21,20 @@ class Configuration
      * Builds the conversion arguments as an argv array (input, options, output)
      * with no shell escaping: the command is run through Process in array mode,
      * so metacharacters such as `>`, spaces or `;` stay inert literal arguments.
+     * The deterministic output path is provided by the converter (cache key).
      *
      * @param Image $image
+     * @param string $outputPath
      * @return string[]
      */
-    public function getCommandArguments(Image $image) : array {
+    public function getCommandArguments(Image $image, string $outputPath) : array {
         $arguments = [$image->getPath()];
 
         foreach ($this->options as $option) {
             $arguments = array_merge($arguments, $option->getArguments());
         }
 
-        $arguments[] = $this->getOutputFullPath($image);
+        $arguments[] = $outputPath;
 
         return $arguments;
     }
@@ -56,14 +58,6 @@ class Configuration
     }
 
     /**
-     * @param Image $image
-     * @return string
-     */
-    public function getOutputFullPath(Image $image) : string {
-        return $this->outputPath.$this->prefix.$image->getFileName().".".$this->ext;
-    }
-
-    /**
      * @param string $prefix
      * @return $this
      */
@@ -79,5 +73,33 @@ class Configuration
     public function setExtension(string $extension) : self {
         $this->ext = $extension;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefix(): string {
+        return $this->prefix;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExt(): string {
+        return $this->ext;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOutputPath(): string {
+        return (string) $this->outputPath;
+    }
+
+    /**
+     * @return Option[]
+     */
+    public function getOptions(): array {
+        return $this->options;
     }
 }

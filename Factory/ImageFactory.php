@@ -24,7 +24,9 @@ class ImageFactory
     public function create(string $path): Image
     {
         return match (self::detectSource($path)) {
-            Image\Source::URL => new Image($this->imageFileManager->createResource($path), true),
+            // Keep the original URL as the source id so the cache key stays stable
+            // (the temp file name is random and must not drive caching).
+            Image\Source::URL => new Image($this->imageFileManager->createResource($path), true, $path),
             Image\Source::ABSOLUTE => new Image($path),
             Image\Source::UNKNOW => throw new UnknowSourceImageException(sprintf("unknow source image %s", $path)),
         };
