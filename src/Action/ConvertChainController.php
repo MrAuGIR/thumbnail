@@ -7,6 +7,7 @@ use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Exception\UnknownSourceImageException;
+use MrAuGir\Thumbnail\Exception\UnsupportedImageTypeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -23,6 +24,7 @@ class ConvertChainController
      * @throws CreateTmpFileException
      * @throws ImageConvertException
      * @throws UnknownSourceImageException
+     * @throws UnsupportedImageTypeException
      * @throws ConverterNotFoundException
      */
     public function __invoke(Request $request, string $chain, string $path): JsonResponse

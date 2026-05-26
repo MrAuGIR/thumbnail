@@ -8,6 +8,7 @@ use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Exception\UnknownSourceImageException;
+use MrAuGir\Thumbnail\Exception\UnsupportedImageTypeException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,6 +23,7 @@ class ConvertImageController
     /**
      * @throws CreateTmpFileException
      * @throws UnknownSourceImageException
+     * @throws UnsupportedImageTypeException
      * @throws ConverterNotFoundException|ImageConvertException
      */
     public function __invoke(Request $request,string $converter, string $path) : BinaryFileResponse
