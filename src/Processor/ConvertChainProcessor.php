@@ -10,6 +10,7 @@ use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Exception\UnknownSourceImageException;
+use MrAuGir\Thumbnail\Exception\UnsupportedImageTypeException;
 
 class ConvertChainProcessor extends ImageProcessor
 {
@@ -29,6 +30,7 @@ class ConvertChainProcessor extends ImageProcessor
      * @throws CreateTmpFileException
      * @throws ImageConvertException
      * @throws UnknownSourceImageException
+     * @throws UnsupportedImageTypeException
      */
     public function executeFromInput(ConvertImageInput $input) : iterable
     {

@@ -5,6 +5,7 @@ namespace MrAuGir\Thumbnail\Tests;
 use MrAuGir\Thumbnail\Converter\BinaryConverter;
 use MrAuGir\Thumbnail\Engine;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
+use MrAuGir\Thumbnail\Exception\UnsupportedImageTypeException;
 use MrAuGir\Thumbnail\ExitCode;
 use MrAuGir\Thumbnail\Factory\ImageFactory;
 use MrAuGir\Thumbnail\ImageFileManager;
@@ -54,6 +55,18 @@ class EngineTest extends TestCase
         $this->assertEquals(0,ExitCode::SUCCESS->value);
         $this->assertEquals(1,ExitCode::FAILURE->value);
 
+        $engine->processConversion($image, ImageFaker::getConverter());
+    }
+
+    /**
+     * A non-image source (here an empty .cad file) must be rejected up front with an
+     * explicit exception, before the binary is ever invoked.
+     */
+    public function testProcessConversionRejectsUnsupportedMime() : void {
+        $engine = $this->makeEngine();
+        $image  = ImageFaker::getImage("test.cad"); // mime: application/x-empty
+
+        $this->expectException(UnsupportedImageTypeException::class);
         $engine->processConversion($image, ImageFaker::getConverter());
     }
 

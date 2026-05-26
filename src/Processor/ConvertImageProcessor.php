@@ -7,6 +7,7 @@ use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Exception\UnknownSourceImageException;
+use MrAuGir\Thumbnail\Exception\UnsupportedImageTypeException;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 #[Autoconfigure]
@@ -16,6 +17,7 @@ class ConvertImageProcessor extends ImageProcessor
      * @throws CreateTmpFileException
      * @throws ImageConvertException
      * @throws UnknownSourceImageException
+     * @throws UnsupportedImageTypeException
      * @throws ConverterNotFoundException
      */
     public function executeFromInput(ConvertImageInput $input) : iterable

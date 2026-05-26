@@ -4,6 +4,7 @@ namespace MrAuGir\Thumbnail;
 
 use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
+use MrAuGir\Thumbnail\Exception\UnsupportedImageTypeException;
 use MrAuGir\Thumbnail\Factory\ImageFactory;
 use MrAuGir\Thumbnail\Model\Image;
 use Psr\Log\LoggerInterface;
@@ -34,6 +35,7 @@ class Engine implements EngineInterface
      * @param Converter $converter
      * @return string Deterministic, cached output path.
      * @throws ImageConvertException
+     * @throws UnsupportedImageTypeException
      */
     public function thumbnail(string $source, Converter $converter): string
     {
@@ -59,6 +61,7 @@ class Engine implements EngineInterface
      * @param iterable<Converter> $converters
      * @return iterable<string> Output paths, in order.
      * @throws ImageConvertException
+     * @throws UnsupportedImageTypeException
      */
     public function thumbnailAll(string $source, iterable $converters): iterable
     {
@@ -86,9 +89,20 @@ class Engine implements EngineInterface
      * @param Converter $converter
      * @return string
      * @throws ImageConvertException
+     * @throws UnsupportedImageTypeException
      */
     public function processConversion(Image $image, Converter $converter): string
     {
+        // Reject non-image (or otherwise unsupported) sources up front, so the failure is
+        // an explicit, catchable exception rather than a cryptic error from the binary.
+        if (!$converter->support($image)) {
+            throw new UnsupportedImageTypeException(sprintf(
+                "Unsupported image type '%s' for source %s",
+                $image->getTypeMime(),
+                $image->getPath()
+            ));
+        }
+
         $command = $converter->getCommand($image);
         $outputPath = $converter->getOutputPathForSource($image->getSourceId());
 

@@ -4,6 +4,7 @@ namespace MrAuGir\Thumbnail;
 
 use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
+use MrAuGir\Thumbnail\Exception\UnsupportedImageTypeException;
 use MrAuGir\Thumbnail\Model\Image;
 
 interface EngineInterface
@@ -15,6 +16,7 @@ interface EngineInterface
      * @param string $source URL or local path of the original image.
      * @return string Deterministic, cached output path.
      * @throws ImageConvertException
+     * @throws UnsupportedImageTypeException
      */
     public function thumbnail(string $source, Converter $converter): string;
 
@@ -25,6 +27,7 @@ interface EngineInterface
      * @param iterable<Converter> $converters
      * @return iterable<string> Output paths, in order.
      * @throws ImageConvertException
+     * @throws UnsupportedImageTypeException
      */
     public function thumbnailAll(string $source, iterable $converters): iterable;
 
@@ -32,6 +35,7 @@ interface EngineInterface
      * Runs the conversion for an already-resolved image and returns the output path.
      *
      * @throws ImageConvertException
+     * @throws UnsupportedImageTypeException
      */
     public function processConversion(Image $image, Converter $converter): string;
 }
