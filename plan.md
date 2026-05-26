@@ -152,6 +152,64 @@ Ces briques pourraient remonter dans le bundle :
 - Stockage déplacé en `var/thumbnails/` (inscriptible par le serveur web), dossier ouvert en 0777 (partage web/CLI).
 - En config : options **sans métacaractère** (`-thumbnail 200x`, pas de `>`) à cause de S1.
 
+---
+
+## 🆕 Nouvelles fonctionnalités (priorisées)
+
+> Deux features retenues, à **internaliser dans le bundle** (elles remontent l'overlay
+> Biblio de l'Annexe). Elles se composent : `{{ thumbnail(url, 'cover') }}` doit produire
+> une `<img>` same-origin, cachée, avec garde SSRF et fallback gracieux.
+
+### NF1 — Fonction/filtre Twig `thumbnail()`
+**But** : supprimer le besoin d'écrire une extension Twig côté projet (roadmap #4).
+Exposer `{{ thumbnail(source, 'cover') }}`.
+
+**Design**
+- `Twig\TwigThumbnailExtension` (AbstractExtension) → fonction `thumbnail(string $source, string $converter): string`.
+- Elle résout le converter via `ConverterResolver` puis appelle `EngineInterface::thumbnail()`.
+  **Elle doit renvoyer une URL** utilisable dans `src=""`, pas un chemin disque (le stockage
+  est souvent sous `var/`, non servi par le web).
+  - **Option A (recommandée — couple avec NF2)** : générer l'URL d'une route de service
+    (`UrlGeneratorInterface::generate('thumbnail_serve', {converter, source})`) → same-origin,
+    compatible stockage `var/`, fallback géré côté contrôleur.
+  - Option B : si `outputPath` est sous `public/`, mapper le chemin produit vers une URL
+    publique (`asset()`).
+  - Pass-through : `source` vide → valeur neutre (placeholder / `''` selon NF2).
+- **Dépendance optionnelle** : ne **pas** mettre `twig/twig` en `require` dur. N'enregistrer le
+  service d'extension que si Twig est présent (garde dans `ThumbnailExtension::load()` ou compiler
+  pass) ; `twig/twig` en `require-dev` + entrée `suggest`.
+- **Tests** : rendu d'un template appelant la fonction (converter connu / source vide).
+
+### NF2 — Fallback / placeholder + contrôleur de service
+**But** : ne jamais casser l'affichage quand la génération échoue (source interdite, MIME non
+supporté, binaire KO, 404 distant…) — roadmap #6.
+
+**Design**
+- Contrôleur du bundle (`Action\ServeThumbnailController`) sur une route nommée `thumbnail_serve`,
+  appelé par NF1/option A. Il appelle `EngineInterface::thumbnail()` :
+  - succès → `BinaryFileResponse` (Content-Type déjà déduit, F4) + `Cache-Control` long ;
+  - échec (catch `ImageConvertException`, `UnsupportedImageTypeException`, `ForbiddenSourceException`,
+    `CreateTmpFileException`, `UnknownSourceImageException`) → **fallback** selon config.
+- **L'Engine continue de lever** (pas de fallback silencieux au cœur) : le fallback est une décision
+  de la couche présentation (contrôleur / helper Twig).
+- **Config** sous `thumbnail` :
+  ```yaml
+  thumbnail:
+      placeholder: '%kernel.project_dir%/public/img/placeholder.png'   # optionnel
+      fallback: placeholder        # placeholder | source | none  (défaut : source)
+      cache_control: 'public, max-age=31536000, immutable'
+  ```
+  - `source` : rediriger vers l'URL d'origine (uniquement si http/https sûr) ;
+  - `placeholder` : servir l'image configurée ;
+  - `none` : 404 (ou pixel 1×1 transparent).
+- **Tests** : converter pointant un binaire inexistant → le contrôleur renvoie le placeholder /
+  redirect, **pas** un 500.
+
+### Backlog (déjà listé en roadmap, non priorisé ici)
+Driver sans shell-out (`ext-imagick`/`gd`, #3) ; async réellement implémenté (Messenger, #5) ;
+recette Flex externe (#7).
+
+---
 
 ## Rules
 1. Toujours des messages de commit court.
