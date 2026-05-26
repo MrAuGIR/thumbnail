@@ -45,7 +45,7 @@ class Engine
 
         $image = $this->imageFactory->create($source);
         try {
-            return $this->processConvertion($image, $converter);
+            return $this->processConversion($image, $converter);
         } finally {
             $this->imageFactory->cleanup($image);
         }
@@ -73,7 +73,7 @@ class Engine
                 }
 
                 $image ??= $this->imageFactory->create($source);
-                yield $this->processConvertion($image, $converter);
+                yield $this->processConversion($image, $converter);
             }
         } finally {
             if (null !== $image) {
@@ -88,7 +88,7 @@ class Engine
      * @return string
      * @throws ImageConvertException
      */
-    public function processConvertion(Image $image, Converter $converter): string
+    public function processConversion(Image $image, Converter $converter): string
     {
         $command = $converter->getCommand($image);
         $outputPath = $converter->getOutputPathForSource($image->getSourceId());
