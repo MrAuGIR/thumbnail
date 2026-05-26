@@ -8,11 +8,10 @@ use Symfony\Component\DependencyInjection\Definition;
 class ConfigurationDefinitionFactory
 {
     /**
-     * @param string $id
      * @param array $conf
      * @return Definition
      */
-    public function createDefinition(string $id, array $conf) : Definition
+    public function createDefinition(array $conf) : Definition
     {
         $configuration = new Definition();
         $configuration->setClass(Configuration::class);

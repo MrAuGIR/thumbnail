@@ -2,11 +2,11 @@
 
 namespace MrAuGir\Thumbnail\Action;
 
-use MrAuGir\Thumbnail\Command\ConvertChainCommand;
+use MrAuGir\Thumbnail\Processor\ConvertChainProcessor;
 use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
-use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
+use MrAuGir\Thumbnail\Exception\UnknownSourceImageException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -14,7 +14,7 @@ class ConvertChainController
 {
     public function __construct(
         private readonly InputFactory             $inputFactory,
-        private readonly ConvertChainCommand $convertImageCmd
+        private readonly ConvertChainProcessor $processor
     )
     {
     }
@@ -22,7 +22,7 @@ class ConvertChainController
     /**
      * @throws CreateTmpFileException
      * @throws ImageConvertException
-     * @throws UnknowSourceImageException
+     * @throws UnknownSourceImageException
      * @throws ConverterNotFoundException
      */
     public function __invoke(Request $request, string $chain, string $path): JsonResponse
@@ -30,7 +30,7 @@ class ConvertChainController
         $input = $this->inputFactory->createConvertChainFromRequest($chain, $path);
 
         $return = [];
-        foreach($this->convertImageCmd->executeFromInput($input) as $path) {
+        foreach($this->processor->executeFromInput($input) as $path) {
             $return[] = $path;
         }
 

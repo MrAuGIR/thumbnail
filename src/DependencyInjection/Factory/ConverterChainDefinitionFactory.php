@@ -18,7 +18,6 @@ class ConverterChainDefinitionFactory
         $definition = new Definition();
         $definition->setClass(ConverterChain::class);
         $definition->addArgument($id);
-        $definition->setPublic(true);
         $definition->setAutowired(true);
 
         $this->configureDefinition($definition,$conf);

@@ -49,7 +49,7 @@ class ThumbnailTest extends WebTestCase
         $convert->method('setConfiguration')->willReturn($this->createMock(BinaryConverter::class));
 
         return [
-            'convert_vignette' => $convert,
+            'thumbnail.converter.convert_vignette' => $convert,
         ];
     }
 
@@ -64,7 +64,7 @@ class ThumbnailTest extends WebTestCase
         $chain->method('add')->willReturn($this->createMock(ConverterChain::class));
 
         return [
-            'chain_web' => $chain
+            'thumbnail.chain.chain_web' => $chain
         ];
     }
 }

@@ -3,20 +3,18 @@ services:
         autowire: true
         autoconfigure: true
 
-    MrAuGir\Thumbnail\Command\:
-        resource: '../../Command/*'
+    MrAuGir\Thumbnail\Processor\:
+        resource: '../../Processor/*'
 
     MrAuGir\Thumbnail\Action\:
         resource: '../../Action/*'
         exclude:
             - '../../Action/Input/'
             - '../../Action/Output/'
-        public: true
         tags: ['controller.service_arguments']
 
     MrAuGir\Thumbnail\Converter\:
         resource: '../../Converter/*'
-        public: true
 
     MrAuGir\Thumbnail\ImageFileManager:
         arguments:
@@ -29,7 +27,8 @@ services:
             $imageFileManager: '@MrAuGir\Thumbnail\ImageFileManager'
 
     MrAuGir\Thumbnail\Engine:
-        public: true
         arguments:
             $processTimeout: '%thumbnail.process_timeout%'
         tags: ['mraugir.thumbnail.engine']
+
+    MrAuGir\Thumbnail\EngineInterface: '@MrAuGir\Thumbnail\Engine'

@@ -5,26 +5,25 @@ namespace MrAuGir\Thumbnail;
 use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Factory\ImageFactory;
-use MrAuGir\Thumbnail\Logger\DummyLogger;
 use MrAuGir\Thumbnail\Model\Image;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
-class Engine
+class Engine implements EngineInterface
 {
-    protected ?LoggerInterface $logger;
-
     /**
      * @param ImageFactory $imageFactory Resolves a source (URL/path) into an Image, downloading remote sources.
      * @param int $processTimeout Maximum duration (seconds) a conversion process may run before being killed.
+     * @param LoggerInterface $logger PSR-3 logger; a no-op NullLogger is used until the app wires a real one.
      */
     public function __construct(
         private readonly ImageFactory $imageFactory,
         private readonly int $processTimeout = 60,
+        private readonly LoggerInterface $logger = new NullLogger(),
     )
     {
-        $this->logger = new DummyLogger();
     }
 
     /**
@@ -45,7 +44,7 @@ class Engine
 
         $image = $this->imageFactory->create($source);
         try {
-            return $this->processConvertion($image, $converter);
+            return $this->processConversion($image, $converter);
         } finally {
             $this->imageFactory->cleanup($image);
         }
@@ -73,7 +72,7 @@ class Engine
                 }
 
                 $image ??= $this->imageFactory->create($source);
-                yield $this->processConvertion($image, $converter);
+                yield $this->processConversion($image, $converter);
             }
         } finally {
             if (null !== $image) {
@@ -88,7 +87,7 @@ class Engine
      * @return string
      * @throws ImageConvertException
      */
-    public function processConvertion(Image $image, Converter $converter): string
+    public function processConversion(Image $image, Converter $converter): string
     {
         $command = $converter->getCommand($image);
         $outputPath = $converter->getOutputPathForSource($image->getSourceId());
@@ -120,14 +119,5 @@ class Engine
         }
 
         return $outputPath;
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     * @return void
-     */
-    public function useLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
     }
 }

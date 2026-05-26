@@ -54,7 +54,7 @@ class EngineTest extends TestCase
         $this->assertEquals(0,ExitCode::SUCCESS->value);
         $this->assertEquals(1,ExitCode::FAILURE->value);
 
-        $engine->processConvertion($image, ImageFaker::getConverter());
+        $engine->processConversion($image, ImageFaker::getConverter());
     }
 
     /**

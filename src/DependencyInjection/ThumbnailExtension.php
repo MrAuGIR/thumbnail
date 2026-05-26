@@ -46,11 +46,13 @@ class ThumbnailExtension extends Extension
         foreach ($converters as $id => $conf) {
             // create a converter definition
             $definition = $converterFactory->createDefinition($id,$conf);
-            $definition->addTag("mraugir.thumbnail.converter");
+            // Index the tag by the short id so the resolver's ServiceLocator can fetch it in O(1).
+            $definition->addTag("mraugir.thumbnail.converter", ['key' => $id]);
+            // Only a namespaced service id is exposed (no raw "$id" service) to avoid
+            // colliding with services of the host application.
             $alias =  sprintf('thumbnail.converter.%s', $id);
-            $container->setDefinition($id,$definition);
             $container->setDefinition($alias,$definition);
-            $container->registerAliasForArgument($id, Converter::class, $id)->setPublic(false);
+            $container->registerAliasForArgument($alias, Converter::class, $id)->setPublic(false);
         }
     }
 
@@ -66,11 +68,10 @@ class ThumbnailExtension extends Extension
         foreach ($chains as $id => $chain) {
             // create a converterChain definition
             $definition = $converterChainFactory->createDefinition($id, $chain);
-            $definition->addTag("mraugir.thumbnail.chain");
+            $definition->addTag("mraugir.thumbnail.chain", ['key' => $id]);
             $alias = sprintf("thumbnail.chain.%s",$id);
-            $container->setDefinition($id,$definition);
             $container->setDefinition($alias,$definition);
-            $container->registerAliasForArgument($id, ConverterChain::class,$id)->setPublic(false);
+            $container->registerAliasForArgument($alias, ConverterChain::class,$id)->setPublic(false);
         }
     }
 }

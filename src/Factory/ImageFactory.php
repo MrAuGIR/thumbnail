@@ -4,7 +4,7 @@ namespace MrAuGir\Thumbnail\Factory;
 
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ForbiddenSourceException;
-use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
+use MrAuGir\Thumbnail\Exception\UnknownSourceImageException;
 use MrAuGir\Thumbnail\ImageFileManager;
 use MrAuGir\Thumbnail\Model\Image;
 
@@ -19,7 +19,7 @@ class ImageFactory
     /**
      * @param string $path
      * @return Image
-     * @throws UnknowSourceImageException|CreateTmpFileException|ForbiddenSourceException
+     * @throws UnknownSourceImageException|CreateTmpFileException|ForbiddenSourceException
      */
     public function create(string $path): Image
     {
@@ -28,7 +28,7 @@ class ImageFactory
             // (the temp file name is random and must not drive caching).
             Image\Source::URL => new Image($this->imageFileManager->createResource($path), true, $path),
             Image\Source::ABSOLUTE => new Image($path),
-            Image\Source::UNKNOW => throw new UnknowSourceImageException(sprintf("unknow source image %s", $path)),
+            Image\Source::UNKNOW => throw new UnknownSourceImageException(sprintf("unknow source image %s", $path)),
         };
     }
 

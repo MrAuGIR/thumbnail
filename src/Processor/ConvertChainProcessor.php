@@ -1,21 +1,20 @@
 <?php
 
-namespace MrAuGir\Thumbnail\Command;
+namespace MrAuGir\Thumbnail\Processor;
 
 use MrAuGir\Thumbnail\Action\Input\ConvertImageInput;
-use MrAuGir\Thumbnail\Command\ConvertImage;
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterChainResolver;
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
-use MrAuGir\Thumbnail\Engine;
+use MrAuGir\Thumbnail\EngineInterface;
 use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
-use MrAuGir\Thumbnail\Exception\UnknowSourceImageException;
+use MrAuGir\Thumbnail\Exception\UnknownSourceImageException;
 
-class ConvertChainCommand extends ConvertImage
+class ConvertChainProcessor extends ImageProcessor
 {
     public function __construct(
-        protected Engine            $engine,
+        protected EngineInterface   $engine,
         protected ConverterResolver $converterResolver,
         protected readonly ConverterChainResolver $converterChainResolver,
     )
@@ -29,7 +28,7 @@ class ConvertChainCommand extends ConvertImage
      * @throws ConverterNotFoundException
      * @throws CreateTmpFileException
      * @throws ImageConvertException
-     * @throws UnknowSourceImageException
+     * @throws UnknownSourceImageException
      */
     public function executeFromInput(ConvertImageInput $input) : iterable
     {
