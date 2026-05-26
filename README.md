@@ -34,6 +34,29 @@ Install ImageMagick: <https://imagemagick.org> — Ubuntu: <https://doc.ubuntu-f
 
 ## Installation
 
+> No Flex recipe is published, so the steps below are **manual**.
+
+### 1. Require the package
+
+The bundle is **not on Packagist**. Add its repository to your application's
+`composer.json`:
+
+```json
+{
+    "repositories": [
+        { "type": "vcs", "url": "https://github.com/MrAuGIR/thumbnail" }
+    ]
+}
+```
+
+then require it:
+
+```bash
+composer require mraugir/thumbnail:^1.0
+```
+
+### 2. Register the bundle
+
 ```php
 <?php
 // config/bundles.php
@@ -43,7 +66,27 @@ return [
 ];
 ```
 
-### Routing (optional, example only)
+### 3. Declare at least one converter
+
+```yaml
+# config/packages/thumbnail.yaml
+thumbnail:
+    converters:
+        cover:
+            binary: "convert"        # use "magick" on ImageMagick 7 (see Requirements)
+            configuration:
+                prefix: "thumb_"
+                ext: "jpeg"
+                options:
+                    - { name: "-resize", value: "200x" }
+                outputPath: "%kernel.project_dir%/var/thumbnails/"
+```
+
+> `outputPath` must be **writable** by the web *and* CLI user. Prefer a path under
+> `var/` over `public/` to avoid permission clashes, and serve the files through a
+> controller (see *Examples*). The directory is created automatically if missing.
+
+### 4. (Optional) import the example routes
 
 > ⚠️ **Security** — The routes shipped in `Resources/config/routes.yaml` are
 > **unauthenticated** and accept an arbitrary `{path}`. Do **not** import them on a
