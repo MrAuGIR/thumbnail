@@ -1,22 +1,49 @@
+# Thumbnail Bundle
 
+A small Symfony bundle to generate thumbnails by shelling out to an image binary
+(ImageMagick by default). It provides a deterministic, cached `Engine`, a YAML-driven
+declaration of *converters* (and *chains* of converters), and argument-name autowiring
+so a converter can be injected straight into your services.
 
-https://doc.ubuntu-fr.org/imagemagick
+## Requirements
+
+- PHP **>= 8.2**
+- Symfony **6.4** or **7.x**
+- An image **CLI binary** reachable on the server (ImageMagick by default).
+
+### ImageMagick (7+)
+
+The bundle runs an external binary; by default the converter `binary` is `convert`.
+
+> **ImageMagick 7 note.** The historical `convert` command is now a *legacy alias* of
+> `magick` and is **absent on some installs** (or prints a deprecation warning). If
+> `convert` is not available, set the binary explicitly in your converter config:
+>
+> ```yaml
+> thumbnail:
+>     converters:
+>         cover:
+>             binary: "magick"   # ImageMagick 7 entry point
+>             # ...
+> ```
+
+`binary` is resolved by `Process`, so you can also point it at an absolute path
+(e.g. `/usr/bin/magick`) or another tool (e.g. `gm` for GraphicsMagick).
+
+Install ImageMagick: <https://imagemagick.org> — Ubuntu: <https://doc.ubuntu-fr.org/imagemagick>.
 
 ## Installation
-
-#### Enable
 
 ```php
 <?php
 // config/bundles.php
 return [
-    ...
-    MrAuGir\Thumbnail\ThumbnailBundle::class => ['all' => true]
+    // ...
+    MrAuGir\Thumbnail\ThumbnailBundle::class => ['all' => true],
 ];
-
 ```
 
-#### routing
+### Routing (optional, example only)
 
 > ⚠️ **Security** — The routes shipped in `Resources/config/routes.yaml` are
 > **unauthenticated** and accept an arbitrary `{path}`. Do **not** import them on a
@@ -25,7 +52,6 @@ return [
 
 ```yaml
 # config/routes/mraugir_thumbnail.yaml
-
 _mraugir_thumbnail:
     resource: "@ThumbnailBundle/Resources/config/routes.yaml"
 ```
@@ -50,10 +76,11 @@ thumbnail:
 ```
 
 Conversions run through `Process` in **array mode** (no shell), so ImageMagick
-geometries such as `200x300>` can now be used verbatim in `options` without being
+geometries such as `200x300>` can be used verbatim in `options` without being
 interpreted as a shell redirection.
 
-## Usages
+## Configuring converters
+
 ```yaml
 # config/packages/thumbnail.yaml
 thumbnail:
@@ -61,28 +88,33 @@ thumbnail:
         convert_vignette:
             binary: "convert"
             configuration:
-                prefix: "thumb_240x24_"
-                ext: "jpeg"
-                options:
-                    - { name: "-resize", value: "240x24"}
-                outputPath: "public/assets/thumbnail/"
-
+                prefix: "thumb_240x24_"     # output file name prefix
+                ext: "jpeg"                 # output extension (also drives the response Content-Type)
+                options:                    # passed verbatim as argv to the binary
+                    - { name: "-resize", value: "240x24" }
+                outputPath: "%kernel.project_dir%/public/assets/thumbnail/"
 ```
 
-### In a Controller
+Each declared converter is registered as a service and bound to its **argument name**
+(`convert_vignette` → `Converter $convertVignette`), so you can inject it directly:
+
 ```php
-    #[Route("/my/custom/url", name: "my_custom_url", methods: [Request::METHOD_GET])]
-    public function customMethod(Request $request,Converter $convertVignette) : JsonResponse {
-        
-        return new JsonResponse();
-    }
+use MrAuGir\Thumbnail\Converter\Converter;
+
+#[Route("/my/custom/url", name: "my_custom_url", methods: ["GET"])]
+public function customMethod(Converter $convertVignette): JsonResponse
+{
+    // $convertVignette is the "convert_vignette" converter
+    return new JsonResponse();
+}
 ```
 
+### Chains
 
-## Converter Chain
+A *chain* applies several converters to the same source.
 
 ```yaml
-# Config/packages/thumbnail.yaml
+# config/packages/thumbnail.yaml
 thumbnail:
     converters:
         convert_mignature:
@@ -91,81 +123,180 @@ thumbnail:
                 prefix: "thumb_240x24_"
                 ext: "jpeg"
                 options:
-                    - { name: "-resize", value: "240x24"}
+                    - { name: "-resize", value: "240x24" }
                 outputPath: "%kernel.project_dir%/public/assets/thumbnail/"
-        ....
-        
+        # convert_screen_shot: ...
     chains:
         print_thumbnail:
             - 'convert_mignature'
             - 'convert_screen_shot'
 ```
 
-### In a Controller
+A chain is bound the same way (`print_thumbnail` → `ConverterChain $printThumbnail`):
 
 ```php
-    #[Route("/my/converters/chain", name: "my_converters_chain", methods: [Request::METHOD_GET])]
-    public function customMethodChain(Request $request, ConverterChain $printThumbnail) : JsonResponse {
+use MrAuGir\Thumbnail\Converter\ConverterChain;
 
-        return new JsonResponse();
-    }
+#[Route("/my/converters/chain", name: "my_converters_chain", methods: ["GET"])]
+public function customMethodChain(ConverterChain $printThumbnail): JsonResponse
+{
+    return new JsonResponse();
+}
 ```
 
-### Exemple
+## Stable API
+
+The bundle exposes a small, stable surface. Type-hint the **interfaces/services** below;
+they are autowired.
+
+### `EngineInterface` (service `MrAuGir\Thumbnail\EngineInterface`)
 
 ```php
-    #[Route("/my/converters/chain", name: "my_converters_chain", methods: [Request::METHOD_POST])]
-    public function customMethodChain(Request $request, ConverterChain $printThumbnail, Engine $engine) : JsonResponse {
-        $body = $request->toArray();
-        if (empty($path = $body['path'])) {
-            throw new InvalidArgumentException("image path not found");
-        }
+// Generate (or reuse the cache for) one thumbnail; returns a stable output path.
+public function thumbnail(string $source, Converter $converter): string;
 
-        // Downloads the source at most once, caches each render, cleans the temp file.
-        $paths = iterator_to_array($engine->thumbnailAll($path, $printThumbnail));
+// Same, for every converter of a chain; the source is downloaded at most once.
+public function thumbnailAll(string $source, iterable $converters): iterable; // <string>
 
-        return new JsonResponse(['path' => $paths]);
-    }
+// Low-level: convert an already-resolved Image. Prefer thumbnail()/thumbnailAll().
+public function processConversion(Image $image, Converter $converter): string;
 ```
 
-## Caching
+`$source` is either a local **absolute path** or an `http`/`https` **URL**.
 
-`Engine::thumbnail(string $source, Converter $converter): string` returns a stable,
-cached output path. The file name is `prefix + <hash> . ext`, where the hash derives
-from **source + binary + options + ext**, so:
+### Resolving by id at runtime
+
+When the converter/chain id is only known at runtime (e.g. from a route parameter),
+resolve it via the locators:
+
+```php
+use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
+use MrAuGir\Thumbnail\Converter\Resolver\ConverterChainResolver;
+
+$converter = $converterResolver->resolve('convert_vignette');   // O(1) lookup
+$chain     = $chainResolver->resolve('print_thumbnail');
+// Both throw MrAuGir\Thumbnail\Exception\ConverterNotFoundException if unknown.
+```
+
+### Caching behaviour
+
+`EngineInterface::thumbnail()` returns a stable, cached output path. The file name is
+`prefix + <hash> . ext`, where the hash derives from **source + binary + options + ext**, so:
 
 - the **same** source and config always resolve to the **same** file;
 - a **cache hit short-circuits**: no download, no conversion — the existing path is returned;
 - changing the converter config (resize, quality, binary, …) yields a new file;
-- temp files downloaded from URLs are cleaned up automatically.
+- the output directory is created if missing, and temp files downloaded from URLs are cleaned up automatically.
+
+### Exceptions
+
+All live in `MrAuGir\Thumbnail\Exception\`:
+`UnknownSourceImageException`, `ForbiddenSourceException`, `CreateTmpFileException`,
+`ImageConvertException`, `ConverterNotFoundException`.
+
+## Examples
+
+### A single thumbnail, resolved from the URL
 
 ```php
-class TestController extends AbstractController
+use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
+use MrAuGir\Thumbnail\EngineInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
+class ThumbnailController extends AbstractController
 {
     public function __construct(
         private readonly ConverterResolver $converterResolver,
-        private readonly Engine            $engine,
-    ){}
+        private readonly EngineInterface   $engine,
+    ) {}
 
     /**
-     * @throws CreateTmpFileException
-     * @throws UnknowSourceImageException
-     * @throws ImageConvertException
+     * @throws \MrAuGir\Thumbnail\Exception\CreateTmpFileException
+     * @throws \MrAuGir\Thumbnail\Exception\UnknownSourceImageException
+     * @throws \MrAuGir\Thumbnail\Exception\ImageConvertException
      */
-    #[Route("/thumbnail/call/{converter}/{path}", name: "mraugir_thumbnail_converter", requirements: ["path" => ".+" ], methods: ["GET"])]
-    public function thumbnailAction(Request $request, string $converter, string $path) : Response {
-
+    #[Route("/thumbnail/{converter}/{path}", requirements: ["path" => ".+"], methods: ["GET"])]
+    public function __invoke(string $converter, string $path): BinaryFileResponse
+    {
         $converter  = $this->converterResolver->resolve($converter);
         $outputPath = $this->engine->thumbnail($path, $converter); // cached
 
-        return new BinaryFileResponse($outputPath, 200, ['Content-Type' => "image/jpeg"]);
+        // Content-Type is derived from the produced file.
+        return new BinaryFileResponse($outputPath);
     }
 }
 ```
 
-### TODO LIST
+### A chain
 
-1. ~~Utiliser la class Extension du bundle pour injecter les paramètres (paths, fichiers temporaires)~~ ✅
-2. ~~injecter ces paramètres sur un service de gestion de fichiers utilisé par les services de conversion~~ ✅
-3. permettre la conversion dynamique (passer un parametrage en post)
-4. ~~gérer le cache pour ne pas re-générer le thumbnail à chaque fois~~ ✅
+```php
+use MrAuGir\Thumbnail\Converter\ConverterChain;
+use MrAuGir\Thumbnail\EngineInterface;
+
+#[Route("/my/converters/chain", methods: ["POST"])]
+public function customMethodChain(Request $request, ConverterChain $printThumbnail, EngineInterface $engine): JsonResponse
+{
+    $body = $request->toArray();
+    if (empty($path = $body['path'] ?? null)) {
+        throw new \InvalidArgumentException("image path not found");
+    }
+
+    // Downloads the source at most once, caches each render, cleans the temp file.
+    $paths = iterator_to_array($engine->thumbnailAll($path, $printThumbnail));
+
+    return new JsonResponse(['path' => $paths]);
+}
+```
+
+## Asynchronous generation (application-side)
+
+The bundle deliberately ships **no** Messenger message/handler: when, how, and what to
+do with the generated path (queue, retries, store in DB, …) is your application's
+concern. `EngineInterface::thumbnail()` is the synchronous primitive you call from a
+worker — it is cache-aware and cleans its own temp files, so it is safe to enqueue.
+
+```php
+// src/Message/GenerateThumbnail.php  (in your app)
+final class GenerateThumbnail
+{
+    public function __construct(
+        public readonly string $source,
+        public readonly string $converter,
+    ) {}
+}
+```
+
+```php
+// src/MessageHandler/GenerateThumbnailHandler.php  (in your app)
+use App\Message\GenerateThumbnail;
+use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
+use MrAuGir\Thumbnail\EngineInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+
+#[AsMessageHandler]
+final class GenerateThumbnailHandler
+{
+    public function __construct(
+        private readonly EngineInterface   $engine,
+        private readonly ConverterResolver $converterResolver,
+    ) {}
+
+    public function __invoke(GenerateThumbnail $message): void
+    {
+        $converter = $this->converterResolver->resolve($message->converter);
+        $this->engine->thumbnail($message->source, $converter); // cached + temp cleaned
+    }
+}
+```
+
+```php
+// Dispatch from anywhere (controller, command, …)
+$bus->dispatch(new GenerateThumbnail($url, 'convert_vignette'));
+```
+
+## TODO
+
+1. ~~Use the bundle Extension to inject parameters (paths, temp files).~~ ✅
+2. ~~Inject those parameters into a file-management service used by the converters.~~ ✅
+3. ~~Cache thumbnails to avoid regenerating on every call.~~ ✅
+4. Dynamic conversion (pass converter settings at request time, e.g. via POST).
