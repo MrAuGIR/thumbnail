@@ -52,7 +52,7 @@ The bundle is **not on Packagist**. Add its repository to your application's
 then require it:
 
 ```bash
-composer require mraugir/thumbnail:^1.0
+composer require mraugir/thumbnail:^2.0
 ```
 
 ### 2. Register the bundle
