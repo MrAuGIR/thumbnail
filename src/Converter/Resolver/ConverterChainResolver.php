@@ -4,23 +4,19 @@ namespace MrAuGir\Thumbnail\Converter\Resolver;
 
 use MrAuGir\Thumbnail\Converter\ConverterChain;
 use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 
 class ConverterChainResolver
 {
     /**
-     * @var iterable | ConverterChain[]
-     */
-    protected iterable $chains;
-
-    /**
-     * @param iterable $chains
+     * @param ContainerInterface $chains Service locator of converter chains indexed by their id.
      */
     public function __construct(
-        #[TaggedIterator("mraugir.thumbnail.chain")] iterable $chains
+        #[TaggedLocator("mraugir.thumbnail.chain", indexAttribute: "key")]
+        private readonly ContainerInterface $chains,
     )
     {
-        $this->chains = $chains;
     }
 
     /**
@@ -30,11 +26,10 @@ class ConverterChainResolver
      */
     public function resolve(string $chainId): ConverterChain
     {
-        foreach ($this->chains as $chain) {
-            if ($chainId == $chain->getId() ) {
-                return $chain;
-            }
+        if (!$this->chains->has($chainId)) {
+            throw new ConverterNotFoundException(sprintf("Converter with id '%s'", $chainId));
         }
-        throw new ConverterNotFoundException(sprintf("Converter with id '%s'",$chainId));
+
+        return $this->chains->get($chainId);
     }
 }

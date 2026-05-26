@@ -4,12 +4,12 @@ namespace MrAuGir\Thumbnail\Processor;
 
 use MrAuGir\Thumbnail\Action\Input\ConvertImageInput;
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
-use MrAuGir\Thumbnail\Engine;
+use MrAuGir\Thumbnail\EngineInterface;
 
 abstract class ImageProcessor
 {
     public function __construct(
-        protected Engine            $engine,
+        protected EngineInterface   $engine,
         protected ConverterResolver $converterResolver,
     )
     {

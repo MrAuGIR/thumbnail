@@ -19,7 +19,6 @@ class ConverterDefinitionFactory
         $resolverConfig = $resolver->resolve($conf);
 
         $definition = new Definition();
-        $definition->setPublic(true);
         $definition->setClass(BinaryConverter::class);
         $definition->addArgument($resolverConfig['binary']);
         $definition->addArgument($id);
@@ -38,7 +37,7 @@ class ConverterDefinitionFactory
      */
     private function configureDefinition(Definition $definition, array $config) : void {
         $configuraionFactory = new ConfigurationDefinitionFactory();
-        $configuration = $configuraionFactory->createDefinition('',$config);
+        $configuration = $configuraionFactory->createDefinition($config);
         $definition->addMethodCall('setConfiguration',[$configuration]);
     }
 

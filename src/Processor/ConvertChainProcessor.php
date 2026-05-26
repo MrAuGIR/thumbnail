@@ -5,7 +5,7 @@ namespace MrAuGir\Thumbnail\Processor;
 use MrAuGir\Thumbnail\Action\Input\ConvertImageInput;
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterChainResolver;
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
-use MrAuGir\Thumbnail\Engine;
+use MrAuGir\Thumbnail\EngineInterface;
 use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
 use MrAuGir\Thumbnail\Exception\CreateTmpFileException;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
@@ -14,7 +14,7 @@ use MrAuGir\Thumbnail\Exception\UnknownSourceImageException;
 class ConvertChainProcessor extends ImageProcessor
 {
     public function __construct(
-        protected Engine            $engine,
+        protected EngineInterface   $engine,
         protected ConverterResolver $converterResolver,
         protected readonly ConverterChainResolver $converterChainResolver,
     )

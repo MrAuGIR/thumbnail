@@ -4,23 +4,19 @@ namespace MrAuGir\Thumbnail\Converter\Resolver;
 
 use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Exception\ConverterNotFoundException;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 
 class ConverterResolver
 {
     /**
-     * @var iterable | Converter[]
-     */
-    protected iterable $converters;
-
-    /**
-     * @param iterable $converters
+     * @param ContainerInterface $converters Service locator of converters indexed by their id.
      */
     public function __construct(
-        #[TaggedIterator("mraugir.thumbnail.converter")] iterable $converters
+        #[TaggedLocator("mraugir.thumbnail.converter", indexAttribute: "key")]
+        private readonly ContainerInterface $converters,
     )
     {
-        $this->converters = $converters;
     }
 
     /**
@@ -30,11 +26,10 @@ class ConverterResolver
      */
     public function resolve(string $converterId): Converter
     {
-        foreach ($this->converters as $converter) {
-            if ($converterId == $converter->getId() ) {
-                return $converter;
-            }
+        if (!$this->converters->has($converterId)) {
+            throw new ConverterNotFoundException(sprintf("Converter with id '%s'", $converterId));
         }
-        throw new ConverterNotFoundException(sprintf("Converter with id '%s'",$converterId));
+
+        return $this->converters->get($converterId);
     }
 }

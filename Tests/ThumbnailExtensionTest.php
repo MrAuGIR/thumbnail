@@ -21,11 +21,11 @@ class ThumbnailExtensionTest extends TestCase
         $container = $kernel->getContainer()->get('test.service_container');
 
         // convert service
-        $convert = $container->get("convert_vignette");
+        $convert = $container->get("thumbnail.converter.convert_vignette");
         $this->assertInstanceOf(Converter::class,$convert);
 
         // chain service
-        $chain = $container->get("chain_web");
+        $chain = $container->get("thumbnail.chain.chain_web");
         $this->assertInstanceOf(ConverterChain::class,$chain);
         /** @var ConverterChain $converter */
         foreach ($chain as $converter) {
@@ -65,7 +65,7 @@ class ThumbnailExtensionTest extends TestCase
         $convert->method('setConfiguration')->willReturn($this->createMock(BinaryConverter::class));
 
         return [
-            'convert_vignette' => $convert,
+            'thumbnail.converter.convert_vignette' => $convert,
         ];
     }
 }

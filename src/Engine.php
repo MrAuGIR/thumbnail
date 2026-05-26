@@ -5,26 +5,25 @@ namespace MrAuGir\Thumbnail;
 use MrAuGir\Thumbnail\Converter\Converter;
 use MrAuGir\Thumbnail\Exception\ImageConvertException;
 use MrAuGir\Thumbnail\Factory\ImageFactory;
-use MrAuGir\Thumbnail\Logger\DummyLogger;
 use MrAuGir\Thumbnail\Model\Image;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
-class Engine
+class Engine implements EngineInterface
 {
-    protected ?LoggerInterface $logger;
-
     /**
      * @param ImageFactory $imageFactory Resolves a source (URL/path) into an Image, downloading remote sources.
      * @param int $processTimeout Maximum duration (seconds) a conversion process may run before being killed.
+     * @param LoggerInterface $logger PSR-3 logger; a no-op NullLogger is used until the app wires a real one.
      */
     public function __construct(
         private readonly ImageFactory $imageFactory,
         private readonly int $processTimeout = 60,
+        private readonly LoggerInterface $logger = new NullLogger(),
     )
     {
-        $this->logger = new DummyLogger();
     }
 
     /**
@@ -120,14 +119,5 @@ class Engine
         }
 
         return $outputPath;
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     * @return void
-     */
-    public function useLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
     }
 }
