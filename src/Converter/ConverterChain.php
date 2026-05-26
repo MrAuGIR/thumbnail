@@ -11,7 +11,7 @@ class ConverterChain implements \IteratorAggregate
     /**
      * @var Converter[]
      */
-    private array $chain;
+    private array $chain = [];
 
     public function __construct(string $id = null)
     {
