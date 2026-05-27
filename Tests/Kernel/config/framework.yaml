@@ -2,3 +2,6 @@ framework:
     secret: 'test_secret'
     test: true
     http_method_override: false
+    router:
+        resource: '%kernel.project_dir%/Tests/Kernel/config/routes.yaml'
+        utf8: true

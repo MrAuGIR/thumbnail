@@ -27,8 +27,19 @@ class ThumbnailExtension extends Extension
         $container->setParameter('thumbnail.max_file_size', $config['max_file_size']);
         $container->setParameter('thumbnail.process_timeout', $config['process_timeout']);
 
+        // Presentation-layer fallback settings consumed by ServeThumbnailController (NF2).
+        $container->setParameter('thumbnail.placeholder', $config['placeholder']);
+        $container->setParameter('thumbnail.fallback', $config['fallback']);
+        $container->setParameter('thumbnail.cache_control', $config['cache_control']);
+
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+
+        // Twig is an optional dependency: the extension extends Twig's AbstractExtension, so it
+        // can only be registered when Twig is actually installed.
+        if (class_exists(\Twig\Extension\AbstractExtension::class)) {
+            $loader->load('services_twig.yaml');
+        }
 
         $this->createConvertersService($config['converters'], $container);
 

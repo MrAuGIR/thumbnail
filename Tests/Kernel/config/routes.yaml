@@ -1,0 +1,3 @@
+# Imports the bundle's serving route so the functional test can hit `thumbnail_serve`.
+_thumbnail_serve:
+    resource: '@ThumbnailBundle/Resources/config/routes/serve.yaml'

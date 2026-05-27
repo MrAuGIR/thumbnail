@@ -1,0 +1,12 @@
+# Recommended public endpoint: serves a cached, same-origin thumbnail and degrades
+# gracefully (placeholder / redirect / transparent pixel) when generation fails — never a 500.
+# Pair it with the Twig `thumbnail()` function: {{ thumbnail(source, 'cover') }} targets this route.
+#
+# Still set `thumbnail.allowed_hosts` to the hosts you trust: `src` is an arbitrary source the
+# bundle will fetch server-side (the http/https scheme is always enforced, see ImageFactory).
+thumbnail_serve:
+    path: /thumbnail/serve/{converter}
+    controller: MrAuGir\Thumbnail\Action\ServeThumbnailController
+    methods: [GET]
+    requirements:
+        converter: '[A-Za-z0-9_-]+'
