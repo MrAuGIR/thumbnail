@@ -1,4 +1,8 @@
 thumbnail:
+    # NF2 presentation-layer fallback (used by ServeThumbnailController in the functional test).
+    placeholder: '%kernel.project_dir%/Tests/images/test.jpg'
+    fallback: source
+    cache_control: 'public, max-age=31536000, immutable'
     converters:
         convert_vignette:
             binary: "convert"

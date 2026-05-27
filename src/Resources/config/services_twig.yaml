@@ -1,0 +1,6 @@
+# Loaded by ThumbnailExtension::load() only when Twig is installed (optional dependency).
+services:
+    MrAuGir\Thumbnail\Twig\TwigThumbnailExtension:
+        arguments:
+            $urlGenerator: '@router'
+        tags: ['twig.extension']

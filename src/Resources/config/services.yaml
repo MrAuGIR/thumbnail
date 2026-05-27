@@ -26,6 +26,13 @@ services:
         arguments:
             $imageFileManager: '@MrAuGir\Thumbnail\ImageFileManager'
 
+    MrAuGir\Thumbnail\Action\ServeThumbnailController:
+        arguments:
+            $placeholder: '%thumbnail.placeholder%'
+            $fallback: '%thumbnail.fallback%'
+            $cacheControl: '%thumbnail.cache_control%'
+        tags: ['controller.service_arguments']
+
     MrAuGir\Thumbnail\Engine:
         arguments:
             $processTimeout: '%thumbnail.process_timeout%'
