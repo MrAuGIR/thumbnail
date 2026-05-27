@@ -1,45 +1,48 @@
 # Thumbnail Bundle
 
-A small Symfony bundle to generate thumbnails by shelling out to an image binary
-(ImageMagick by default). It provides a deterministic, cached `Engine`, a YAML-driven
-declaration of *converters* (and *chains* of converters), and argument-name autowiring
-so a converter can be injected straight into your services.
+*[English](README.en.md) · [Français](README.md)*
 
-## Requirements
+Un petit bundle Symfony pour générer des miniatures en déléguant à un binaire image
+(ImageMagick par défaut). Il fournit un `Engine` déterministe et mis en cache, une
+déclaration des *converters* (et des *chaînes* de converters) pilotée par YAML, et
+l'autowiring par nom d'argument pour injecter un converter directement dans tes services.
+
+## Prérequis
 
 - PHP **>= 8.2**
-- Symfony **6.4** or **7.x**
-- An image **CLI binary** reachable on the server (ImageMagick by default).
+- Symfony **6.4** ou **7.x**
+- Un **binaire image en ligne de commande** accessible sur le serveur (ImageMagick par défaut).
 
 ### ImageMagick (7+)
 
-The bundle runs an external binary; by default the converter `binary` is `convert`.
+Le bundle exécute un binaire externe ; par défaut, le `binary` du converter est `convert`.
 
-> **ImageMagick 7 note.** The historical `convert` command is now a *legacy alias* of
-> `magick` and is **absent on some installs** (or prints a deprecation warning). If
-> `convert` is not available, set the binary explicitly in your converter config:
+> **Note ImageMagick 7.** La commande historique `convert` est désormais un *alias legacy* de
+> `magick` et est **absente sur certaines installations** (ou affiche un avertissement de
+> dépréciation). Si `convert` n'est pas disponible, définis explicitement le binaire dans la
+> config de ton converter :
 >
 > ```yaml
 > thumbnail:
 >     converters:
 >         cover:
->             binary: "magick"   # ImageMagick 7 entry point
+>             binary: "magick"   # point d'entrée ImageMagick 7
 >             # ...
 > ```
 
-`binary` is resolved by `Process`, so you can also point it at an absolute path
-(e.g. `/usr/bin/magick`) or another tool (e.g. `gm` for GraphicsMagick).
+`binary` est résolu par `Process` : tu peux donc aussi pointer vers un chemin absolu
+(ex. `/usr/bin/magick`) ou un autre outil (ex. `gm` pour GraphicsMagick).
 
-Install ImageMagick: <https://imagemagick.org> — Ubuntu: <https://doc.ubuntu-fr.org/imagemagick>.
+Installer ImageMagick : <https://imagemagick.org> — Ubuntu : <https://doc.ubuntu-fr.org/imagemagick>.
 
 ## Installation
 
-> No Flex recipe is published, so the steps below are **manual**.
+> Aucune recette Flex n'est publiée : les étapes ci-dessous sont **manuelles**.
 
-### 1. Require the package
+### 1. Installer le package
 
-The bundle is **not on Packagist**. Add its repository to your application's
-`composer.json`:
+Le bundle **n'est pas sur Packagist**. Ajoute son dépôt dans le `composer.json` de ton
+application :
 
 ```json
 {
@@ -49,13 +52,13 @@ The bundle is **not on Packagist**. Add its repository to your application's
 }
 ```
 
-then require it:
+puis installe-le :
 
 ```bash
 composer require mraugir/thumbnail:^2.0
 ```
 
-### 2. Register the bundle
+### 2. Enregistrer le bundle
 
 ```php
 <?php
@@ -66,14 +69,14 @@ return [
 ];
 ```
 
-### 3. Declare at least one converter
+### 3. Déclarer au moins un converter
 
 ```yaml
 # config/packages/thumbnail.yaml
 thumbnail:
     converters:
         cover:
-            binary: "convert"        # use "magick" on ImageMagick 7 (see Requirements)
+            binary: "convert"        # utilise "magick" avec ImageMagick 7 (voir Prérequis)
             configuration:
                 prefix: "thumb_"
                 ext: "jpeg"
@@ -82,16 +85,17 @@ thumbnail:
                 outputPath: "%kernel.project_dir%/var/thumbnails/"
 ```
 
-> `outputPath` must be **writable** by the web *and* CLI user. Prefer a path under
-> `var/` over `public/` to avoid permission clashes, and serve the files through a
-> controller (see *Examples*). The directory is created automatically if missing.
+> `outputPath` doit être **accessible en écriture** par l'utilisateur web *et* CLI. Préfère un
+> chemin sous `var/` plutôt que `public/` pour éviter les conflits de permissions, et sers les
+> fichiers via un contrôleur (voir *Exemples*). Le dossier est créé automatiquement s'il
+> n'existe pas.
 
-### 4. (Optional) import the example routes
+### 4. (Optionnel) importer les routes d'exemple
 
-> ⚠️ **Security** — The routes shipped in `Resources/config/routes.yaml` are
-> **unauthenticated** and accept an arbitrary `{path}`. Do **not** import them on a
-> public app without protecting them (firewall + `allowed_hosts`, see below). They
-> are intended as an example; prefer wiring your own protected controller.
+> ⚠️ **Sécurité** — Les routes livrées dans `Resources/config/routes.yaml` sont
+> **non authentifiées** et acceptent un `{path}` arbitraire. Ne les importe **pas** sur une app
+> publique sans les protéger (firewall + `allowed_hosts`, voir plus bas). Elles sont fournies à
+> titre d'exemple ; préfère brancher ton propre contrôleur protégé.
 
 ```yaml
 # config/routes/mraugir_thumbnail.yaml
@@ -99,30 +103,34 @@ _mraugir_thumbnail:
     resource: "@ThumbnailBundle/Resources/config/routes.yaml"
 ```
 
-## Security configuration
+> 💡 Pour **afficher** des miniatures, préfère la route **`thumbnail_serve`** prête à l'emploi
+> et protégée par un fallback, plutôt que ces exemples bruts — voir
+> *[Servir les miniatures](#servir-les-miniatures-avec-la-route-thumbnail_serve)* ci-dessous.
 
-Remote sources are restricted to `http`/`https`; `file://`, `ftp://`, `phar://`, …
-are rejected (no LFI/SSRF via stream wrappers). Tune the policy under the
-`thumbnail` key:
+## Configuration de la sécurité
+
+Les sources distantes sont restreintes à `http`/`https` ; `file://`, `ftp://`, `phar://`, …
+sont rejetées (pas de LFI/SSRF via les wrappers de flux). Ajuste la politique sous la clé
+`thumbnail` :
 
 ```yaml
 # config/packages/thumbnail.yaml
 thumbnail:
-    # Hosts allowed as remote sources. Empty = any host (scheme is still enforced).
+    # Hôtes autorisés comme sources distantes. Vide = tout hôte (le schéma reste imposé).
     allowed_hosts:
         - 'covers.openlibrary.org'
-    fetch_timeout: 10          # seconds — network timeout when downloading a source
-    max_file_size: 10485760    # bytes  — reject oversized remote payloads (default 10 MiB)
-    process_timeout: 60        # seconds — kill a conversion that runs too long
+    fetch_timeout: 10          # secondes — timeout réseau au téléchargement d'une source
+    max_file_size: 10485760    # octets  — rejette les payloads distants trop gros (défaut 10 Mio)
+    process_timeout: 60        # secondes — tue une conversion qui tourne trop longtemps
     converters:
         # ...
 ```
 
-Conversions run through `Process` in **array mode** (no shell), so ImageMagick
-geometries such as `200x300>` can be used verbatim in `options` without being
-interpreted as a shell redirection.
+Les conversions passent par `Process` en **mode tableau** (sans shell) : les géométries
+ImageMagick comme `200x300>` peuvent donc être utilisées telles quelles dans `options` sans
+être interprétées comme une redirection shell.
 
-## Configuring converters
+## Configurer les converters
 
 ```yaml
 # config/packages/thumbnail.yaml
@@ -131,15 +139,15 @@ thumbnail:
         convert_vignette:
             binary: "convert"
             configuration:
-                prefix: "thumb_240x24_"     # output file name prefix
-                ext: "jpeg"                 # output extension (also drives the response Content-Type)
-                options:                    # passed verbatim as argv to the binary
+                prefix: "thumb_240x24_"     # préfixe du nom de fichier de sortie
+                ext: "jpeg"                 # extension de sortie (détermine aussi le Content-Type de la réponse)
+                options:                    # passées telles quelles en argv au binaire
                     - { name: "-resize", value: "240x24" }
                 outputPath: "%kernel.project_dir%/public/assets/thumbnail/"
 ```
 
-Each declared converter is registered as a service and bound to its **argument name**
-(`convert_vignette` → `Converter $convertVignette`), so you can inject it directly:
+Chaque converter déclaré est enregistré comme service et lié à son **nom d'argument**
+(`convert_vignette` → `Converter $convertVignette`), ce qui permet de l'injecter directement :
 
 ```php
 use MrAuGir\Thumbnail\Converter\Converter;
@@ -147,14 +155,14 @@ use MrAuGir\Thumbnail\Converter\Converter;
 #[Route("/my/custom/url", name: "my_custom_url", methods: ["GET"])]
 public function customMethod(Converter $convertVignette): JsonResponse
 {
-    // $convertVignette is the "convert_vignette" converter
+    // $convertVignette est le converter "convert_vignette"
     return new JsonResponse();
 }
 ```
 
-### Chains
+### Chaînes
 
-A *chain* applies several converters to the same source.
+Une *chaîne* applique plusieurs converters à la même source.
 
 ```yaml
 # config/packages/thumbnail.yaml
@@ -175,7 +183,7 @@ thumbnail:
             - 'convert_screen_shot'
 ```
 
-A chain is bound the same way (`print_thumbnail` → `ConverterChain $printThumbnail`):
+Une chaîne est liée de la même façon (`print_thumbnail` → `ConverterChain $printThumbnail`) :
 
 ```php
 use MrAuGir\Thumbnail\Converter\ConverterChain;
@@ -187,59 +195,135 @@ public function customMethodChain(ConverterChain $printThumbnail): JsonResponse
 }
 ```
 
-## Stable API
+## Servir les miniatures avec la route `thumbnail_serve`
 
-The bundle exposes a small, stable surface. Type-hint the **interfaces/services** below;
-they are autowired.
+Pour le cas courant — afficher une miniature mise en cache dans une balise `<img>` — le bundle
+fournit un contrôleur prêt à l'emploi sur la route nommée **`thumbnail_serve`**. Contrairement
+aux routes d'exemple brutes, elle **ne renvoie jamais d'erreur 500 quand la génération
+échoue** : elle se rabat sur un fallback (image placeholder, redirection vers la source
+d'origine, ou un pixel transparent).
+
+Importe-la (séparée de l'exemple `routes.yaml`, pour n'exposer que l'endpoint sûr) :
+
+```yaml
+# config/routes/mraugir_thumbnail.yaml
+_thumbnail_serve:
+    resource: "@ThumbnailBundle/Resources/config/routes/serve.yaml"
+```
+
+Cela ajoute `GET /thumbnail/serve/{converter}?src=<source>`. Le `converter` est un segment de
+chemin ; la **source est le paramètre de requête `src`** (ainsi une URL complète survit à
+l'encodage en pourcent au lieu de buter sur les slashs encodés). En cas de succès, elle renvoie
+l'image en cache avec le `Cache-Control` configuré ; sur une erreur interceptée, elle applique
+le fallback ci-dessous.
+
+> ⚠️ La source est tout de même récupérée côté serveur : définis donc `allowed_hosts` (voir
+> *Configuration de la sécurité*) avec les hôtes de confiance. Le schéma `http`/`https` est
+> toujours imposé.
+
+### Configuration du fallback
+
+```yaml
+# config/packages/thumbnail.yaml
+thumbnail:
+    # Image servie quand la génération échoue et que fallback = placeholder (optionnel, chemin absolu).
+    placeholder: "%kernel.project_dir%/public/img/placeholder.png"
+    # placeholder | source | none   (défaut : source)
+    fallback: source
+    # Cache-Control posé sur une miniature servie avec succès (et sur le placeholder).
+    cache_control: "public, max-age=31536000, immutable"
+    converters:
+        # ...
+```
+
+| `fallback`    | En cas d'échec, le contrôleur… |
+|---------------|--------------------------------|
+| `source`      | redirige (302) vers la source d'origine **si** c'est une URL `http`/`https` ; sinon se rabat sur `placeholder`. |
+| `placeholder` | sert l'image `placeholder` configurée ; si aucune n'est définie/lisible, se rabat sur un pixel transparent. |
+| `none`        | renvoie un PNG transparent 1×1 (HTTP 200). |
+
+Une source vide va directement au fallback. Les échecs et redirections sont envoyés avec
+`Cache-Control: no-store`, pour qu'une erreur transitoire ne soit jamais mise en cache à la
+place d'une miniature qui pourrait réussir plus tard. L'`Engine` lui-même continue de lever des
+exceptions — le fallback est une décision de la couche présentation prise par le contrôleur, pas
+par le cœur.
+
+## Twig : la fonction `thumbnail()`
+
+Twig est une dépendance **optionnelle**. Quand `symfony/twig-bundle` est installé, le bundle
+enregistre une fonction `thumbnail()` qui renvoie une URL same-origin vers la route
+`thumbnail_serve` ci-dessus — tu n'as donc jamais à écrire une extension Twig à la main ni à
+exposer un chemin disque :
+
+```twig
+<img src="{{ thumbnail(book.coverUrl, 'cover') }}" alt="cover">
+```
+
+`thumbnail(source, converter)` construit `/thumbnail/serve/<converter>?src=<source>`. Elle
+renvoie toujours une URL utilisable — même pour une source vide, auquel cas le contrôleur sert
+le placeholder/pixel selon ta config `fallback`. Elle nécessite que la route `thumbnail_serve`
+soit importée (ci-dessus) et une politique `allowed_hosts`.
+
+Installer la dépendance optionnelle :
+
+```bash
+composer require symfony/twig-bundle
+```
+
+## API stable
+
+Le bundle expose une petite surface stable. Type-hinte les **interfaces/services** ci-dessous ;
+ils sont autowirés.
 
 ### `EngineInterface` (service `MrAuGir\Thumbnail\EngineInterface`)
 
 ```php
-// Generate (or reuse the cache for) one thumbnail; returns a stable output path.
+// Génère (ou réutilise le cache pour) une miniature ; renvoie un chemin de sortie stable.
 public function thumbnail(string $source, Converter $converter): string;
 
-// Same, for every converter of a chain; the source is downloaded at most once.
+// Idem, pour chaque converter d'une chaîne ; la source est téléchargée au plus une fois.
 public function thumbnailAll(string $source, iterable $converters): iterable; // <string>
 
-// Low-level: convert an already-resolved Image. Prefer thumbnail()/thumbnailAll().
+// Bas niveau : convertit une Image déjà résolue. Préfère thumbnail()/thumbnailAll().
 public function processConversion(Image $image, Converter $converter): string;
 ```
 
-`$source` is either a local **absolute path** or an `http`/`https` **URL**.
+`$source` est soit un **chemin absolu** local, soit une **URL** `http`/`https`.
 
-### Resolving by id at runtime
+### Résolution par id à l'exécution
 
-When the converter/chain id is only known at runtime (e.g. from a route parameter),
-resolve it via the locators:
+Quand l'id du converter/de la chaîne n'est connu qu'à l'exécution (ex. depuis un paramètre de
+route), résous-le via les locators :
 
 ```php
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterChainResolver;
 
-$converter = $converterResolver->resolve('convert_vignette');   // O(1) lookup
+$converter = $converterResolver->resolve('convert_vignette');   // lookup O(1)
 $chain     = $chainResolver->resolve('print_thumbnail');
-// Both throw MrAuGir\Thumbnail\Exception\ConverterNotFoundException if unknown.
+// Les deux lèvent MrAuGir\Thumbnail\Exception\ConverterNotFoundException si inconnu.
 ```
 
-### Caching behaviour
+### Comportement du cache
 
-`EngineInterface::thumbnail()` returns a stable, cached output path. The file name is
-`prefix + <hash> . ext`, where the hash derives from **source + binary + options + ext**, so:
+`EngineInterface::thumbnail()` renvoie un chemin de sortie stable et mis en cache. Le nom de
+fichier est `prefix + <hash> . ext`, où le hash dérive de **source + binaire + options + ext**,
+donc :
 
-- the **same** source and config always resolve to the **same** file;
-- a **cache hit short-circuits**: no download, no conversion — the existing path is returned;
-- changing the converter config (resize, quality, binary, …) yields a new file;
-- the output directory is created if missing, and temp files downloaded from URLs are cleaned up automatically.
+- la **même** source et la **même** config résolvent toujours vers le **même** fichier ;
+- un **hit de cache court-circuite** : pas de téléchargement, pas de conversion — le chemin existant est renvoyé ;
+- changer la config du converter (resize, qualité, binaire, …) produit un nouveau fichier ;
+- le dossier de sortie est créé s'il manque, et les fichiers temporaires téléchargés depuis des URLs sont nettoyés automatiquement.
 
 ### Exceptions
 
-All live in `MrAuGir\Thumbnail\Exception\`:
+Toutes dans `MrAuGir\Thumbnail\Exception\` :
 `UnknownSourceImageException`, `ForbiddenSourceException`, `CreateTmpFileException`,
-`ImageConvertException`, `ConverterNotFoundException`.
+`UnsupportedImageTypeException`, `ImageConvertException`, `ConverterNotFoundException`.
 
-## Examples
+## Exemples
 
-### A single thumbnail, resolved from the URL
+### Une miniature unique, résolue depuis l'URL
 
 ```php
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
@@ -262,15 +346,15 @@ class ThumbnailController extends AbstractController
     public function __invoke(string $converter, string $path): BinaryFileResponse
     {
         $converter  = $this->converterResolver->resolve($converter);
-        $outputPath = $this->engine->thumbnail($path, $converter); // cached
+        $outputPath = $this->engine->thumbnail($path, $converter); // en cache
 
-        // Content-Type is derived from the produced file.
+        // Le Content-Type est dérivé du fichier produit.
         return new BinaryFileResponse($outputPath);
     }
 }
 ```
 
-### A chain
+### Une chaîne
 
 ```php
 use MrAuGir\Thumbnail\Converter\ConverterChain;
@@ -281,25 +365,26 @@ public function customMethodChain(Request $request, ConverterChain $printThumbna
 {
     $body = $request->toArray();
     if (empty($path = $body['path'] ?? null)) {
-        throw new \InvalidArgumentException("image path not found");
+        throw new \InvalidArgumentException("chemin de l'image introuvable");
     }
 
-    // Downloads the source at most once, caches each render, cleans the temp file.
+    // Télécharge la source au plus une fois, met chaque rendu en cache, nettoie le fichier temporaire.
     $paths = iterator_to_array($engine->thumbnailAll($path, $printThumbnail));
 
     return new JsonResponse(['path' => $paths]);
 }
 ```
 
-## Asynchronous generation (application-side)
+## Génération asynchrone (côté application)
 
-The bundle deliberately ships **no** Messenger message/handler: when, how, and what to
-do with the generated path (queue, retries, store in DB, …) is your application's
-concern. `EngineInterface::thumbnail()` is the synchronous primitive you call from a
-worker — it is cache-aware and cleans its own temp files, so it is safe to enqueue.
+Le bundle ne livre **délibérément aucun** message/handler Messenger : quand, comment et quoi
+faire du chemin généré (file d'attente, retries, stockage en BDD, …) relève de ton application.
+`EngineInterface::thumbnail()` est la primitive synchrone que tu appelles depuis un worker —
+elle est cache-aware et nettoie ses propres fichiers temporaires, donc elle est sûre à mettre
+en file.
 
 ```php
-// src/Message/GenerateThumbnail.php  (in your app)
+// src/Message/GenerateThumbnail.php  (dans ton app)
 final class GenerateThumbnail
 {
     public function __construct(
@@ -310,7 +395,7 @@ final class GenerateThumbnail
 ```
 
 ```php
-// src/MessageHandler/GenerateThumbnailHandler.php  (in your app)
+// src/MessageHandler/GenerateThumbnailHandler.php  (dans ton app)
 use App\Message\GenerateThumbnail;
 use MrAuGir\Thumbnail\Converter\Resolver\ConverterResolver;
 use MrAuGir\Thumbnail\EngineInterface;
@@ -327,19 +412,19 @@ final class GenerateThumbnailHandler
     public function __invoke(GenerateThumbnail $message): void
     {
         $converter = $this->converterResolver->resolve($message->converter);
-        $this->engine->thumbnail($message->source, $converter); // cached + temp cleaned
+        $this->engine->thumbnail($message->source, $converter); // en cache + temp nettoyé
     }
 }
 ```
 
 ```php
-// Dispatch from anywhere (controller, command, …)
+// Dispatch depuis n'importe où (contrôleur, commande, …)
 $bus->dispatch(new GenerateThumbnail($url, 'convert_vignette'));
 ```
 
 ## TODO
 
-1. ~~Use the bundle Extension to inject parameters (paths, temp files).~~ ✅
-2. ~~Inject those parameters into a file-management service used by the converters.~~ ✅
-3. ~~Cache thumbnails to avoid regenerating on every call.~~ ✅
-4. Dynamic conversion (pass converter settings at request time, e.g. via POST).
+1. ~~Utiliser l'Extension du bundle pour injecter les paramètres (chemins, fichiers temporaires).~~ ✅
+2. ~~Injecter ces paramètres dans un service de gestion de fichiers utilisé par les converters.~~ ✅
+3. ~~Mettre en cache les miniatures pour éviter de régénérer à chaque appel.~~ ✅
+4. Conversion dynamique (passer les réglages du converter au moment de la requête, ex. via POST).
